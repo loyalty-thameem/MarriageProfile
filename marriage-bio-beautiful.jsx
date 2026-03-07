@@ -28,7 +28,7 @@ const PHOTOS = [
 
 
 const BISMILLAH = "بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ";
-const ARABIC_NAME = "محمد تميم أنصاري";
+const ARABIC_NAME = "تميم أنصاري";
 
 const lifestyle = [
   {icon:"🚭",text:"Non-Smoker"},{icon:"🚫",text:"Non-Drinker"},
