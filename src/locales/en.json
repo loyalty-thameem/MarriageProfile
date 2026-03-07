@@ -1,0 +1,224 @@
+{
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ar": "Arabic",
+    "ur": "Urdu",
+    "ta": "Tamil",
+    "ml": "Malayalam"
+  },
+  "header": {
+    "bismillahSubtitle": "In the name of Allah, the Most Gracious, the Most Merciful",
+    "role": "Senior Software Engineer - Capgemini - Chennai",
+    "tagline": "\"Principle-driven, health-conscious, and disciplined - grounded in tradition, focused on growth.\""
+  },
+  "gallery": {
+    "title": "Photo Gallery",
+    "empty": "No images found in src/assets.",
+    "hint": "Tap or click the photo to view full screen",
+    "loading": "Loading image...",
+    "loadError1": "This image could not be loaded.",
+    "loadError2": "Please try another photo.",
+    "photoAlt": "Photo {{index}}",
+    "thumbAlt": "Thumbnail {{index}}",
+    "close": "Close gallery",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "jumpTo": "Go to photo {{index}}",
+    "openThumb": "Open photo {{index}}"
+  },
+  "sections": {
+    "personal": "Personal Details",
+    "religious": "Religious Details",
+    "education": "Education",
+    "professional": "Professional Profile",
+    "family": "Family Details",
+    "about": "About Me",
+    "coreValues": "Core Values & Character",
+    "hobbies": "Hobbies & Interests",
+    "lifestyle": "Lifestyle & Habits",
+    "food": "Food Preferences",
+    "mahr": "Mahr (Dowry)",
+    "future": "Background & Future Vision",
+    "partner": "Partner Expectations",
+    "contact": "Contact"
+  },
+  "common": {
+    "siblings": "Siblings",
+    "strictlyAvoids": "Strictly Avoids",
+    "preferredQualities": "Preferred Qualities",
+    "languageBackground": "Language & Background",
+    "preferredAgeRange": "Preferred Age Range"
+  },
+  "rows": {
+    "fullName": "Full Name",
+    "dateOfBirth": "Date of Birth",
+    "age": "Age",
+    "religion": "Religion",
+    "motherTongue": "Mother Tongue",
+    "knownLanguages": "Known Languages",
+    "native": "Native",
+    "currentCity": "Current City",
+    "height": "Height",
+    "weight": "Weight",
+    "complexion": "Complexion",
+    "diet": "Diet",
+    "maritalStatus": "Marital Status",
+    "salah": "5 Times Salah",
+    "quranReading": "Quran Reading",
+    "hajjUmrah": "Hajj / Umrah",
+    "pgDegree": "PG Degree",
+    "ugDegree": "UG Degree",
+    "university": "University",
+    "mcaPassed": "MCA Passed",
+    "bcaPassed": "BCA Passed",
+    "itExperience": "IT Experience",
+    "designation": "Designation",
+    "company": "Company",
+    "workMode": "Work Mode",
+    "annualCtc": "Annual CTC",
+    "father": "Father",
+    "mother": "Mother",
+    "nativePlace": "Native Place",
+    "currentStay": "Current Stay"
+  },
+  "text": {
+    "housingNote": "Our old house has been demolished and the land is kept. Inshallah, a new house will be built very soon.",
+    "about1": "Alhamdulillah, I lead a disciplined, value-driven life rooted in Islamic principles and traditional South Indian Muslim culture. My daily routines prioritize health, consistency, and long-term growth - both worldly and spiritual.",
+    "about2": "I believe in simple living, strong family bonds, and fulfilling responsibilities with sincerity. Committed to building a home grounded in taqwa, mutual respect, and purposeful living.",
+    "aboutSupport": "Inshallah, I will always support you and stand by your side in every situation. My mother and sisters will also welcome and support you wholeheartedly.",
+    "mahr1": "InshaAllah, whatever she asks for as Mahr, I am willing to give. My personal desire is to give her 80 sovereigns of gold.",
+    "mahr2": "Alhamdulillah, from the salary I earned from the job that Allah blessed me with, I have already bought 86 grams of gold for the Mahr.",
+    "mahr3": "This gold does not belong to my mother, sister, or any family member - it is solely reserved for the Mahr.",
+    "future1": "I come from a simple background and currently do not own land or large wealth. However, Alhamdulillah, Allah has blessed me with a good career and the opportunity to grow while striving to practice Islam sincerely.",
+    "future2": "I believe that rizq comes from Allah, and with His blessings and consistent effort, I hope to continue improving in both Deen and Dunya.",
+    "future3": "InshaAllah, in the future I aim to buy land, build our own home, and start a business to provide a stable and comfortable life for my family.",
+    "futureQuote": "My intention is to build a marriage based on Deen, mutual respect, and supporting each other in obeying Allah and following the Sunnah.",
+    "partner1": "Seeking a practicing Muslimah of good character, strong deen, and a family-oriented mindset. She should value simplicity, maintain a clean lifestyle, and be willing to build a home grounded in Islamic principles, mutual respect, and purposeful growth together.",
+    "partnerLanguage": "Language is not a major barrier. Urdu speakers are welcome, and basic understanding of Tamil or English would be helpful for communication.",
+    "partnerQuote": "I wish to build a peaceful Islamic family where we practice Islam together and support each other in faith, life, and responsibilities.",
+    "quranQuote": "And of His signs is that He created for you from yourselves mates that you may find tranquility in them",
+    "quranRef": "SURAH AR-RUM 30:21"
+  },
+  "lists": {
+    "lifestyle": [
+      { "icon": "🚭", "text": "Non-Smoker" },
+      { "icon": "🚫", "text": "Non-Drinker" },
+      { "icon": "☕", "text": "No Tea / Coffee" },
+      { "icon": "🍫", "text": "No Sweets" },
+      { "icon": "🥛", "text": "No Milk" },
+      { "icon": "🍔", "text": "No Junk Food" },
+      { "icon": "🎬", "text": "Does not watch movies" },
+      { "icon": "🎵", "text": "Does not listen to songs" }
+    ],
+    "coreValues": [
+      "Fitness-Focused",
+      "Spiritual",
+      "Family Responsibility",
+      "Eggetarian",
+      "Teetotaler",
+      "Minimalist",
+      "Health-Conscious",
+      "Value-Driven",
+      "Self-Disciplined",
+      "Traditional Mindset",
+      "Simple Living",
+      "Principle-Driven"
+    ],
+    "hobbies": [
+      "🏋️ Fitness & Workout",
+      "🚶 Long Walks",
+      "📖 Reading",
+      "💻 Coding & Tech",
+      "🌿 Nature & Outdoors",
+      "🍳 Cooking Healthy"
+    ],
+    "foods": [
+      { "e": "🍛", "n": "White Rice with Rasam & Egg" },
+      { "e": "🍚", "n": "Egg Biryani" },
+      { "e": "🥥", "n": "Coconut Rice" },
+      { "e": "✨", "n": "Ghee Rice" }
+    ],
+    "preferredQualities": [
+      { "icon": "📖", "text": "Hafiza or currently pursuing Hifz (highly preferred)" },
+      { "icon": "🕌", "text": "Strives to practice Islam sincerely & follow the Sunnah" },
+      { "icon": "☝️", "text": "Upholds Tawhid and Islamic principles in daily life" },
+      { "icon": "🎓", "text": "Good education along with commitment to practising Islam" }
+    ],
+    "languages": ["🗣️ Tamil", "🗣️ Urdu", "🗣️ Malayalam"]
+  },
+  "profile": {
+    "name": "THAMEEM ANSARI",
+    "sectionIcons": {
+      "gallery": "🖼️",
+      "personal": "🧾",
+      "religious": "🕌",
+      "education": "🎓",
+      "professional": "💼",
+      "family": "🏡",
+      "about": "✨",
+      "coreValues": "⭐",
+      "hobbies": "🎯",
+      "lifestyle": "🌿",
+      "food": "🍽️",
+      "mahr": "💍",
+      "future": "🛤️",
+      "partner": "🤝",
+      "age": "🌙"
+    },
+    "sections": {
+      "personal": [
+        ["rows.fullName", "Thameem Ansari"],
+        ["rows.dateOfBirth", "03 October 1998"],
+        ["rows.age", "27 Years"],
+        ["rows.religion", "Islam"],
+        ["rows.motherTongue", "Tamil"],
+        ["rows.knownLanguages", "Tamil, English"],
+        ["rows.native", "Adirampattinam, Thanjavur - 614701"],
+        ["rows.currentCity", "Chennai & Adirampattinam, TN"],
+        ["rows.height", "178 cm / 5 ft 10 in"],
+        ["rows.weight", "82 kg (Feb 2026)"],
+        ["rows.complexion", "Wheatish Brown"],
+        ["rows.diet", "Eggetarian"],
+        ["rows.maritalStatus", "Never Married"]
+      ],
+      "religious": [
+        ["rows.religion", "Islam"],
+        ["rows.salah", "Yes - Alhamdulillah"],
+        ["rows.quranReading", "Yes"],
+        ["rows.hajjUmrah", "Not Yet - Inshallah"]
+      ],
+      "education": [
+        ["rows.pgDegree", "MCA - Computer Application"],
+        ["rows.ugDegree", "BCA - Computer Application"],
+        ["rows.university", "Kadhir Mohideen College, Adirampattinam"],
+        ["rows.mcaPassed", "2020"],
+        ["rows.bcaPassed", "2018"],
+        ["rows.itExperience", "5 Years"]
+      ],
+      "professional": [
+        ["rows.designation", "Senior Software Engineer"],
+        ["rows.company", "Capgemini, Chennai"],
+        ["rows.workMode", "Hybrid (Office + Remote)"],
+        ["rows.annualCtc", "INR 13 LPA"]
+      ],
+      "family": [
+        ["rows.father", "Late Sheik Mydeen (Passed Away)"],
+        ["rows.mother", "Ajmath Banu - Homemaker"],
+        ["rows.nativePlace", "Adirampattinam, Thanjavur Dist."],
+        ["rows.currentStay", "Rental Home, Adirampattinam"]
+      ]
+    },
+    "siblings": [
+      { "icon": "👩", "label": "Elder Sister 1", "value": "Married - Living in Adirampattinam" },
+      { "icon": "👩", "label": "Elder Sister 2", "value": "Married - Living in Chennai" },
+      { "icon": "👦", "label": "Younger Brother", "value": "Unmarried" }
+    ],
+    "contactItems": [
+      { "href": "tel:+917695974797", "icon": "📱", "text": "+91 76959 74797 (WhatsApp)" },
+      { "href": "mailto:marriage.profile.contact@gmail.com", "icon": "✉️", "text": "marriage.profile.contact@gmail.com" },
+      { "href": null, "icon": "📍", "text": "Chennai & Adirampattinam, Tamil Nadu" }
+    ],
+    "preferredAgeRangeValue": "18 - 20 Years"
+  }
+}

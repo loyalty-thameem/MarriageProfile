@@ -1,46 +1,12 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+﻿import React, { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import img20241026 from "./src/assets/IMG-20241026-WA0177.jpg";
-import img20241109 from "./src/assets/IMG_20241109_141207.jpg";
-import img20241113 from "./src/assets/IMG_20241113_133519.jpg";
-import img20250210 from "./src/assets/IMG_20250210_104249.jpg";
-import img20250219 from "./src/assets/IMG_20250219_122747.jpg";
-import img20250225 from "./src/assets/IMG_20250225_164742.jpg";
-import img20250228 from "./src/assets/IMG_20250228_120554.jpg";
-import img20250304 from "./src/assets/IMG_20250304_162935.jpg";
-import img20250314 from "./src/assets/IMG_20250314_170741.jpg";
-import img20250331 from "./src/assets/IMG_20250331_134304.jpg";
-import screenshot20251112 from "./src/assets/Screenshot_20251112_011822.jpg";
-
-const PHOTOS = [
-  img20241026,
-  img20241109,
-  img20241113,
-  img20250210,
-  img20250219,
-  img20250225,
-  img20250228,
-  img20250304,
-  img20250314,
-  img20250331,
-  screenshot20251112,
-];
-
-
-const BISMILLAH = "بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ";
+import { useTranslation } from "react-i18next";
+import enLocale from "./src/locales/en.json";
+const BISMILLAH = "\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u064e\u0651\u0647\u0650 \u0627\u0644\u0631\u064e\u0651\u062d\u0652\u0645\u064e\u0646\u0650 \u0627\u0644\u0631\u064e\u0651\u062d\u0650\u064a\u0645\u0650";
 const ARABIC_NAME = "تميم أنصاري";
 
-const lifestyle = [
-  {icon:"🚭",text:"Non-Smoker"},{icon:"🚫",text:"Non-Drinker"},
-  {icon:"☕",text:"No Tea / Coffee"},{icon:"🍫",text:"No Sweets"},
-  {icon:"🥛",text:"No Milk"},{icon:"🍔",text:"No Junk Food"},
-  {icon:"🎬",text:"Does not watch movies"},{icon:"🎵",text:"Does not listen to songs"},
-];
-const coreValues = ["Fitness-Focused","Spiritual","Family Responsibility","Eggetarian","Teetotaler","Minimalist","Health-Conscious","Value-Driven","Self-Disciplined","Traditional Mindset","Simple Living","Principle-Driven"];
-const foods = [{e:"🍛",n:"White Rice with Rasam & Egg"},{e:"🍚",n:"Egg Biryani"},{e:"🥥",n:"Coconut Rice"},{e:"✨",n:"Ghee Rice"}];
-const hobbies = ["🏋️ Fitness & Workout","🚶 Long Walks","📖 Reading","💻 Coding & Tech","🌿 Nature & Outdoors","🍳 Cooking Healthy"];
-
-/* ── Islamic geometric corner SVG ── */
+const getNestedValue = (obj, path) => path.split(".").reduce((acc, key) => acc?.[key], obj);
+/* -- Islamic geometric corner SVG -- */
 const Corner = ({ flip }) => (
   <svg width="60" height="60" viewBox="0 0 60 60" fill="none"
     style={{ transform: flip ? "scaleX(-1)" : "none" }}>
@@ -53,7 +19,7 @@ const Corner = ({ flip }) => (
 
 const StarDivider = () => (
   <div style={{display:"flex",alignItems:"center",gap:"12px",justifyContent:"center",margin:"0 auto"}}>
-    <div style={{flex:1,height:"1px",background:"linear-gradient(to right,transparent,#c9a84c)"}}/>
+    <div style={{flex:1,height:"1px",background:"linear-gradient(to inline-end,transparent,#c9a84c)"}}/>
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <polygon points="12,2 14.5,9 22,9 16,14 18.5,21 12,17 5.5,21 8,14 2,9 9.5,9" fill="#c9a84c"/>
     </svg>
@@ -63,11 +29,11 @@ const StarDivider = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <polygon points="12,2 14.5,9 22,9 16,14 18.5,21 12,17 5.5,21 8,14 2,9 9.5,9" fill="#c9a84c"/>
     </svg>
-    <div style={{flex:1,height:"1px",background:"linear-gradient(to left,transparent,#c9a84c)"}}/>
+    <div style={{flex:1,height:"1px",background:"linear-gradient(to inline-start,transparent,#c9a84c)"}}/>
   </div>
 );
 
-/* ── Section Card ── */
+/* -- Section Card -- */
 const Card = ({ icon, title, children, delay=0 }) => (
   <div style={{
     position:"relative",
@@ -80,7 +46,7 @@ const Card = ({ icon, title, children, delay=0 }) => (
     animationDelay:`${delay}ms`
   }} className="card-reveal">
     {/* top accent line */}
-    <div style={{position:"absolute",top:0,left:"20px",right:"20px",height:"1px",background:"linear-gradient(to right,transparent,#c9a84c,transparent)"}}/>
+    <div style={{position:"absolute",top:0,insetInline:"20px",height:"1px",background:"linear-gradient(to right,transparent,#c9a84c,transparent)"}}/>
     <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"16px"}}>
       <div style={{
         width:"34px",height:"34px",borderRadius:"8px",
@@ -103,8 +69,14 @@ const Card = ({ icon, title, children, delay=0 }) => (
   </div>
 );
 
-/* ── Info Row ── */
-const Row = ({ label, value }) => (
+const ROW_VALUE_ICONS = {
+  "rows.salah": "✅",
+  "rows.quranReading": "☑️",
+  "rows.hajjUmrah": "🕋"
+};
+
+/* -- Info Row -- */
+const Row = ({ rowKey, label, value, rtl = false }) => (
   <div style={{
     display:"flex",justifyContent:"space-between",alignItems:"flex-start",
     padding:"9px 0",borderBottom:"1px solid rgba(201,168,76,0.1)",gap:"12px"
@@ -116,12 +88,19 @@ const Row = ({ label, value }) => (
     }}>{label}</span>
     <span style={{
       fontFamily:"Playfair Display,serif",color:"#fdf6e3",
-      fontSize:"clamp(12px,2.8vw,14px)",fontWeight:"500",textAlign:"right"
-    }}>{value}</span>
+      fontSize:"clamp(12px,2.8vw,14px)",fontWeight:"500",textAlign: rtl ? "left" : "right"
+    }}>
+      {ROW_VALUE_ICONS[rowKey] ? (
+        <span style={{display:"inline-flex",alignItems:"center",gap:"8px",flexDirection: rtl ? "row-reverse" : "row"}}>
+          <span aria-hidden="true" style={{fontSize:"0.9em",lineHeight:1}}>{ROW_VALUE_ICONS[rowKey]}</span>
+          <span>{value}</span>
+        </span>
+      ) : value}
+    </span>
   </div>
 );
 
-/* ── Tag pill ── */
+/* -- Tag pill -- */
 const Pill = ({ children }) => (
   <span style={{
     display:"inline-block",padding:"5px 13px",margin:"3px",
@@ -133,8 +112,103 @@ const Pill = ({ children }) => (
   }}>{children}</span>
 );
 
-/* ── Photo Gallery ── */
-function Gallery() {
+const renderHighlightedText = (text, highlights) => {
+  if (!text) return text;
+
+  const sorted = [...highlights].sort((a, b) => b.phrase.length - a.phrase.length);
+  const parts = [];
+  let cursor = 0;
+
+  while (cursor < text.length) {
+    const match = sorted.find(({ phrase }) => phrase && text.startsWith(phrase, cursor));
+    if (!match) {
+      parts.push(text[cursor]);
+      cursor += 1;
+      continue;
+    }
+
+    parts.push(
+      <span key={`${match.phrase}-${cursor}`} style={match.style}>
+        {match.phrase}
+      </span>
+    );
+    cursor += match.phrase.length;
+  }
+
+  return parts;
+};
+
+const HIGHLIGHT_PHRASES = {
+  en: {
+    mahr1: ["InshaAllah,", "80 sovereigns of gold"],
+    mahr2: ["Alhamdulillah,", "86 grams of gold"],
+    future1: ["Alhamdulillah,"],
+    future2: ["rizq comes from Allah"],
+    future3: ["InshaAllah,", "buy land, build our own home, and start a business"]
+  },
+  ta: {
+    mahr1: ["இன்ஷா அல்லாஹ்,", "80 sovereigns தங்கம்"],
+    mahr2: ["அல்ஹம்துலில்லாஹ்,", "86 கிராம் தங்கம்"],
+    future1: ["அல்ஹம்துலில்லாஹ்,"],
+    future2: ["ரிஸ்க் அல்லாஹ்விடமிருந்து வருகிறது"],
+    future3: ["இன்ஷா அல்லாஹ்,", "நிலம் வாங்கி, எங்கள் சொந்த வீட்டை கட்டி, ஒரு தொழிலை தொடங்கி"]
+  },
+  ur: {
+    mahr1: ["ان شاء اللہ،", "80 sovereigns سونا"],
+    mahr2: ["الحمدللہ،", "86 گرام سونا"],
+    future1: ["الحمدللہ"],
+    future2: ["رزق اللہ کی طرف سے ہے"],
+    future3: ["ان شاء اللہ", "زمین خریدنا، اپنا گھر بنانا اور کاروبار شروع کرنا"]
+  },
+  ar: {
+    mahr1: ["إن شاء الله،", "80 sovereigns من الذهب"],
+    mahr2: ["الحمد لله،", "86 غراماً من الذهب"],
+    future1: ["الحمد لله،"],
+    future2: ["الرزق من عند الله"],
+    future3: ["إن شاء الله،", "شراء أرض وبناء منزلنا الخاص وبدء مشروع"]
+  },
+  ml: {
+    mahr1: ["ഇൻഷാ അല്ലാഹ്,", "80 sovereigns സ്വർണം"],
+    mahr2: ["അൽഹംദുലില്ലാഹ്,", "86 ഗ്രാം സ്വർണം"],
+    future1: ["അൽഹംദുലില്ലാഹ്,"],
+    future2: ["റിസ്ഖ് അല്ലാഹുവിൽ നിന്നാണ് വരുന്നതെന്ന്"],
+    future3: ["ഇൻഷാ അല്ലാഹ്,", "ഭൂമി വാങ്ങി, നമ്മുടെ സ്വന്തം വീട് പണിതു, ഒരു ബിസിനസ് ആരംഭിച്ച്"]
+  }
+};
+
+const getTextHighlights = (language, key, accentStyle, strongStyle) => {
+  const phrases = HIGHLIGHT_PHRASES[language]?.[key] || HIGHLIGHT_PHRASES.en[key] || [];
+  return phrases.map((phrase, index) => ({
+    phrase,
+    style: index === 0 ? accentStyle : strongStyle
+  }));
+};
+
+const InlineIconText = ({ icon, children, dimmed = false }) => (
+  <span style={{ display: "inline", color: dimmed ? "rgba(253,246,227,0.6)" : "inherit" }}>
+    <span
+      aria-hidden="true"
+      style={{
+        display: "inline-block",
+        marginInlineEnd: "8px",
+        fontSize: "0.95em",
+        verticalAlign: "baseline"
+      }}
+    >
+      {icon}
+    </span>
+    {children}
+  </span>
+);
+
+/* -- Photo Gallery -- */
+function Gallery({ rtl }) {
+  const { t } = useTranslation();
+  const sectionIconsValue = t("profile.sectionIcons", { returnObjects: true });
+  const sectionIcons =
+    sectionIconsValue && typeof sectionIconsValue === "object" && !Array.isArray(sectionIconsValue)
+      ? sectionIconsValue
+      : enLocale.profile.sectionIcons;
   const photos = useMemo(() => {
     const modules = import.meta.glob("/src/assets/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG,WEBP,AVIF}", {
       eager: true,
@@ -147,9 +221,35 @@ function Gallery() {
   const [lightboxReady, setLightboxReady] = useState(false);
   const [lightboxFailed, setLightboxFailed] = useState(false);
   const timer = useRef(null);
+  const overlayButtonStyle = {
+    position: "absolute",
+    width: "44px",
+    height: "44px",
+    borderRadius: "50%",
+    border: "1px solid rgba(201,168,76,0.35)",
+    background: "rgba(201,168,76,0.12)",
+    color: "#e8c96a",
+    cursor: "pointer",
+    zIndex: 10002
+  };
+  const sliderButtonStyle = {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    background: "rgba(8,10,16,0.6)",
+    border: "1px solid rgba(201,168,76,0.35)",
+    color: "#e8c96a",
+    fontSize: "20px",
+    cursor: "pointer",
+    zIndex: 2
+  };
 
   const startAutoSlide = () => {
     clearInterval(timer.current);
+    if (photos.length < 2) return;
     timer.current = setInterval(() => {
       setCur((prev) => (prev + 1) % photos.length);
     }, 4000);
@@ -205,8 +305,8 @@ function Gallery() {
 
     const onKeyDown = (e) => {
       if (e.key === "Escape") closeLightbox();
-      if (e.key === "ArrowLeft") stepLightbox(-1);
-      if (e.key === "ArrowRight") stepLightbox(1);
+      if (e.key === "ArrowLeft") stepLightbox(rtl ? 1 : -1);
+      if (e.key === "ArrowRight") stepLightbox(rtl ? -1 : 1);
     };
 
     const prevOverflow = document.body.style.overflow;
@@ -217,13 +317,13 @@ function Gallery() {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [lightbox]);
+  }, [lightbox, rtl]);
 
   if (photos.length === 0) {
     return (
-      <Card icon="📸" title="Photo Gallery" delay={100}>
+      <Card icon={sectionIcons.gallery} title={t("gallery.title")} delay={100}>
         <div style={{color:"rgba(201,168,76,0.8)",fontFamily:"Lato,sans-serif",fontSize:"14px"}}>
-          No images found in <code>src/assets</code>.
+          {t("gallery.empty")}
         </div>
       </Card>
     );
@@ -258,20 +358,16 @@ function Gallery() {
             }}
           >
             <button
+              type="button"
               onClick={closeLightbox}
+              aria-label={t("gallery.close")}
               style={{
-                position: "absolute",
                 top: "14px",
-                right: "14px",
-                width: "44px",
-                height: "44px",
-                borderRadius: "50%",
+                insetInlineEnd: "14px",
+                fontSize: "20px",
                 border: "1px solid rgba(201,168,76,0.45)",
                 background: "rgba(201,168,76,0.14)",
-                color: "#e8c96a",
-                fontSize: "20px",
-                cursor: "pointer",
-                zIndex: 10002
+                ...overlayButtonStyle
               }}
             >
               X
@@ -293,7 +389,7 @@ function Gallery() {
             </div>
             <img
               src={photos[lightbox]}
-              alt={`Photo ${lightbox + 1}`}
+              alt={t("gallery.photoAlt", { index: lightbox + 1 })}
               onLoad={() => setLightboxReady(true)}
               onError={() => {
                 setLightboxReady(false);
@@ -320,7 +416,7 @@ function Gallery() {
                 letterSpacing:"1px",
                 zIndex:10002
               }}>
-                Loading image...
+                {t("gallery.loading")}
               </div>
             )}
             {lightboxFailed && (
@@ -334,47 +430,35 @@ function Gallery() {
                 zIndex:10002,
                 maxWidth:"80vw"
               }}>
-                Unable to load this image in full view.
+                {t("gallery.loadError1")}
                 <br />
-                Try next/previous or refresh once.
+                {t("gallery.loadError2")}
               </div>
             )}
             <button
+              type="button"
               onClick={() => stepLightbox(-1)}
+              aria-label={t("gallery.previous")}
               style={{
-                position: "absolute",
-                left: "12px",
+                insetInlineStart: "12px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                width: "44px",
-                height: "44px",
-                borderRadius: "50%",
-                border: "1px solid rgba(201,168,76,0.35)",
-                background: "rgba(201,168,76,0.12)",
-                color: "#e8c96a",
                 fontSize: "24px",
-                cursor: "pointer",
-                zIndex: 10002
+                ...overlayButtonStyle
               }}
             >
               {"<"}
             </button>
             <button
+              type="button"
               onClick={() => stepLightbox(1)}
+              aria-label={t("gallery.next")}
               style={{
-                position: "absolute",
-                right: "12px",
+                insetInlineEnd: "12px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                width: "44px",
-                height: "44px",
-                borderRadius: "50%",
-                border: "1px solid rgba(201,168,76,0.35)",
-                background: "rgba(201,168,76,0.12)",
-                color: "#e8c96a",
                 fontSize: "24px",
-                cursor: "pointer",
-                zIndex: 10002
+                ...overlayButtonStyle
               }}
             >
               {">"}
@@ -383,7 +467,7 @@ function Gallery() {
         </div>
       ), document.body)}
 
-      <Card icon="📸" title="Photo Gallery" delay={100}>
+      <Card icon={sectionIcons.gallery} title={t("gallery.title")} delay={100}>
         <div
           style={{
             position: "relative",
@@ -396,7 +480,7 @@ function Gallery() {
         >
           <img
             src={photos[cur]}
-            alt={`Photo ${cur + 1}`}
+            alt={t("gallery.photoAlt", { index: cur + 1 })}
             fetchPriority="high"
             loading="eager"
             decoding="async"
@@ -411,9 +495,9 @@ function Gallery() {
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,transparent 55%,rgba(8,10,16,0.75))" }} />
           <div
             style={{
-              position: "absolute",
-              top: "12px",
-              right: "12px",
+                position: "absolute",
+                top: "12px",
+                insetInlineEnd: "12px",
               background: "rgba(8,10,16,0.7)",
               border: "1px solid rgba(201,168,76,0.3)",
               borderRadius: "20px",
@@ -426,27 +510,18 @@ function Gallery() {
           >
             {cur + 1} / {photos.length}
           </div>
-          {[{ d: -1, side: "left", sym: "<" }, { d: 1, side: "right", sym: ">" }].map(({ d, side, sym }) => (
+          {[{ d: -1, side: rtl ? "right" : "left", sym: rtl ? ">" : "<" }, { d: 1, side: rtl ? "left" : "right", sym: rtl ? "<" : ">" }].map(({ d, side, sym }) => (
             <button
               key={side}
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 stepSlider(d);
               }}
+              aria-label={d === -1 ? t("gallery.previous") : t("gallery.next")}
               style={{
-                position: "absolute",
                 [side]: "10px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                width: "36px",
-                height: "36px",
-                borderRadius: "50%",
-                background: "rgba(8,10,16,0.6)",
-                border: "1px solid rgba(201,168,76,0.35)",
-                color: "#e8c96a",
-                fontSize: "20px",
-                cursor: "pointer",
-                zIndex: 2
+                ...sliderButtonStyle
               }}
             >
               {sym}
@@ -464,17 +539,20 @@ function Gallery() {
             fontFamily: "Lato,sans-serif"
           }}
         >
-          Tap or click the photo to view full screen
+          {t("gallery.hint")}
         </div>
 
         <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "10px" }}>
           {photos.map((_, i) => (
             <button
               key={i}
+              type="button"
               onClick={() => {
                 setCur(i);
                 startAutoSlide();
               }}
+              aria-label={t("gallery.jumpTo", { index: i + 1 })}
+              aria-pressed={i === cur}
               style={{
                 width: i === cur ? "22px" : "7px",
                 height: "7px",
@@ -493,13 +571,23 @@ function Gallery() {
             <img
               key={i}
               src={src}
-              alt={`Thumb ${i + 1}`}
+              alt={t("gallery.thumbAlt", { index: i + 1 })}
               loading="lazy"
               decoding="async"
+              role="button"
+              tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
                 openLightbox(i);
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openLightbox(i);
+                }
+              }}
+              aria-label={t("gallery.openThumb", { index: i + 1 })}
               style={{
                 width: "clamp(44px,9vw,52px)",
                 height: "clamp(44px,9vw,52px)",
@@ -519,6 +607,51 @@ function Gallery() {
   );
 }
 export default function MarriageBio() {
+  const { t, i18n } = useTranslation();
+  const rtl = i18n.language === "ar" || i18n.language === "ur";
+  const accentTextStyle = {
+    color:"#e8c96a",
+    fontFamily:"Playfair Display,serif",
+    fontStyle:"italic"
+  };
+  const strongAccentStyle = {
+    color:"#e8d080",
+    fontWeight:"700"
+  };
+  const getList = (key) => {
+    const list = t(key, { returnObjects: true });
+    if (Array.isArray(list)) return list;
+    const fallback = getNestedValue(enLocale, key);
+    return Array.isArray(fallback) ? fallback : [];
+  };
+  const getObject = (key) => {
+    const value = t(key, { returnObjects: true });
+    if (value && typeof value === "object" && !Array.isArray(value)) return value;
+    const fallback = getNestedValue(enLocale, key);
+    return fallback && typeof fallback === "object" && !Array.isArray(fallback) ? fallback : {};
+  };
+  const lifestyleItems = getList("lists.lifestyle");
+  const coreValuesList = getList("lists.coreValues");
+  const hobbiesList = getList("lists.hobbies");
+  const foodsList = getList("lists.foods");
+  const preferredQualities = getList("lists.preferredQualities");
+  const partnerLanguages = getList("lists.languages");
+  const profileName = t("profile.name") || enLocale.profile.name;
+  const sectionIcons = getObject("profile.sectionIcons");
+  const profileSections = getObject("profile.sections");
+  const siblings = getList("profile.siblings");
+  const contactItems = getList("profile.contactItems");
+
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+    document.documentElement.dir = rtl ? "rtl" : "ltr";
+    localStorage.setItem("app_language", i18n.language);
+  }, [i18n.language]);
+
+  const changeLanguage = (event) => {
+    i18n.changeLanguage(event.target.value);
+  };
+
   return (
     <div style={{
       minHeight:"100vh",
@@ -526,9 +659,31 @@ export default function MarriageBio() {
       padding:"clamp(16px,4vw,36px) clamp(10px,3vw,16px) 60px",
       position:"relative",overflow:"hidden"
     }}>
+            <div style={{position:"fixed",top:"14px",insetInlineEnd:"14px",zIndex:50}}>
+        <label style={{display:"none"}} htmlFor="language-selector">{t("language.label")}</label>
+        <select
+          id="language-selector"
+          value={i18n.language}
+          onChange={changeLanguage}
+          style={{
+            background:"rgba(9,16,24,0.9)",
+            color:"#e8d5a0",
+            border:"1px solid rgba(201,168,76,0.35)",
+            borderRadius:"8px",
+            padding:"7px 10px",
+            fontSize:"12px"
+          }}
+        >
+          <option value="en">{t("language.en")}</option>
+          <option value="ar">{t("language.ar")}</option>
+          <option value="ur">{t("language.ur")}</option>
+          <option value="ta">{t("language.ta")}</option>
+          <option value="ml">{t("language.ml")}</option>
+        </select>
+      </div>
       {/* Ambient glow blobs */}
-      <div style={{position:"fixed",top:"-10%",left:"-10%",width:"40vw",height:"40vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(201,168,76,0.06) 0%,transparent 70%)",pointerEvents:"none"}}/>
-      <div style={{position:"fixed",bottom:"-10%",right:"-5%",width:"35vw",height:"35vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(20,80,120,0.1) 0%,transparent 70%)",pointerEvents:"none"}}/>
+      <div style={{position:"fixed",top:"-10%",insetInlineStart:"-10%",width:"40vw",height:"40vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(201,168,76,0.06) 0%,transparent 70%)",pointerEvents:"none"}}/>
+      <div style={{position:"fixed",bottom:"-10%",insetInlineEnd:"-5%",width:"35vw",height:"35vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(20,80,120,0.1) 0%,transparent 70%)",pointerEvents:"none"}}/>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Lato:wght@300;400;700&family=Amiri:wght@400;700&display=swap');
@@ -540,6 +695,12 @@ export default function MarriageBio() {
         .bism{animation:shimmer 3.5s ease infinite;}
         .card-reveal{animation:fadeUp .7s ease both;}
         button{outline:none;-webkit-tap-highlight-color:transparent;}
+        button:focus-visible,
+        select:focus-visible,
+        [role="button"]:focus-visible{
+          outline:2px solid #f0d876;
+          outline-offset:3px;
+        }
         ::-webkit-scrollbar{height:3px;}
         ::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.3);border-radius:2px;}
         @media(max-width:480px){.two-col{grid-template-columns:1fr 1fr !important;}}
@@ -556,7 +717,7 @@ export default function MarriageBio() {
         {/* Rainbow top border */}
         <div style={{height:"3px",background:"linear-gradient(90deg,transparent 0%,#8b6914 15%,#c9a84c 40%,#f0d876 60%,#c9a84c 80%,#8b6914 90%,transparent 100%)"}}/>
 
-        {/* ── HEADER ── */}
+        {/* -- HEADER -- */}
         <div style={{
           padding:"clamp(28px,6vw,48px) clamp(20px,5vw,40px) clamp(24px,5vw,36px)",
           textAlign:"center",
@@ -565,8 +726,8 @@ export default function MarriageBio() {
           position:"relative"
         }}>
           {/* Corner decorations */}
-          <div style={{position:"absolute",top:"12px",left:"12px"}}><Corner/></div>
-          <div style={{position:"absolute",top:"12px",right:"12px"}}><Corner flip/></div>
+          <div style={{position:"absolute",top:"12px",insetInlineStart:"12px"}}><Corner/></div>
+          <div style={{position:"absolute",top:"12px",insetInlineEnd:"12px"}}><Corner flip/></div>
 
           {/* Bismillah */}
           <div className="bism" style={{
@@ -583,7 +744,7 @@ export default function MarriageBio() {
             fontSize:"clamp(8px,1.8vw,9px)",
             letterSpacing:"2.5px",textTransform:"uppercase",
             marginBottom:"24px"
-          }}>In the name of Allah, the Most Gracious, the Most Merciful</div>
+          }}>{t("header.bismillahSubtitle")}</div>
 
           <StarDivider/>
 
@@ -597,7 +758,7 @@ export default function MarriageBio() {
             display:"flex",alignItems:"center",justifyContent:"center",
             fontSize:"42px",position:"relative"
           }}>
-            ☪️
+            {sectionIcons.age}
             <div style={{
               position:"absolute",inset:"-8px",borderRadius:"50%",
               border:"1px solid rgba(201,168,76,0.15)"
@@ -622,7 +783,7 @@ export default function MarriageBio() {
             letterSpacing:"clamp(3px,1vw,6px)",
             lineHeight:1.05,marginBottom:"8px",
             filter:"drop-shadow(0 0 20px rgba(201,168,76,0.3))"
-          }}>THAMEEM ANSARI</h1>
+          }}>{profileName}</h1>
 
           {/* Subtitle */}
           <div style={{
@@ -633,7 +794,7 @@ export default function MarriageBio() {
             marginBottom:"20px"
           }}>
             <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"#c9a84c",display:"inline-block"}}/>
-            <span style={{fontFamily:"Lato,sans-serif",color:"#c9a84c",fontSize:"clamp(9px,2vw,11px)",letterSpacing:"2px",textTransform:"uppercase"}}>Senior Software Engineer · Capgemini · Chennai</span>
+            <span style={{fontFamily:"Lato,sans-serif",color:"#c9a84c",fontSize:"clamp(9px,2vw,11px)",letterSpacing:"2px",textTransform:"uppercase"}}>{t("header.role")}</span>
             <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"#c9a84c",display:"inline-block"}}/>
           </div>
 
@@ -647,85 +808,64 @@ export default function MarriageBio() {
             lineHeight:"1.9",maxWidth:"460px",margin:"20px auto 0",
             letterSpacing:"0.3px"
           }}>
-            "Principle-driven, health-conscious, and disciplined —<br/>grounded in tradition, focused on growth."
+            {t("header.tagline")}
           </p>
         </div>
 
-        {/* ── BODY ── */}
+        {/* -- BODY -- */}
         <div style={{padding:"clamp(14px,3.5vw,24px) clamp(12px,3.5vw,24px) 20px"}}>
 
-          <Gallery/>
+          <Gallery rtl={rtl}/>
 
           {/* Personal */}
-          <Card icon="🪪" title="Personal Details" delay={0}>
-            <Row label="Full Name" value="Thameem Ansari"/>
-            <Row label="Date of Birth" value="03 October 1998"/>
-            <Row label="Age" value="27 Years"/>
-            <Row label="Religion" value="Islam"/>
-            <Row label="Mother Tongue" value="Tamil"/>
-            <Row label="Known Languages" value="Tamil, English"/>
-            <Row label="Native" value="Adirampattinam, Thanjavur – 614701"/>
-            <Row label="Current City" value="Chennai & Adirampattinam, TN"/>
-            <Row label="Height" value="178 cm / 5′ 10″"/>
-            <Row label="Weight" value="82 kg (Feb 2026)"/>
-            <Row label="Complexion" value="Wheatish Brown"/>
-            <Row label="Diet" value="Eggetarian"/>
-            <Row label="Marital Status" value="Never Married"/>
+          <Card icon={sectionIcons.personal} title={t("sections.personal")} delay={0}>
+            {profileSections.personal?.map(([labelKey, value]) => (
+              <Row key={labelKey} rowKey={labelKey} label={t(labelKey)} value={value} rtl={rtl} />
+            ))}
           </Card>
 
           {/* Religious Details */}
-          <Card icon="🕌" title="Religious Details" delay={60}>
-            <Row label="Religion" value="Islam"/>
-            <Row label="5 Times Salah" value="✅ Yes — Alhamdulillah"/>
-            <Row label="Quran Reading" value="✅ Yes"/>
-            <Row label="Hajj / Umrah" value="Not Yet — Inshallah"/>
+          <Card icon={sectionIcons.religious} title={t("sections.religious")} delay={60}>
+            {profileSections.religious?.map(([labelKey, value]) => (
+              <Row key={labelKey} rowKey={labelKey} label={t(labelKey)} value={value} rtl={rtl} />
+            ))}
           </Card>
 
           {/* Education */}
-          <Card icon="🎓" title="Education" delay={60}>
-            <Row label="PG Degree" value="MCA – Computer Application"/>
-            <Row label="UG Degree" value="BCA – Computer Application"/>
-            <Row label="University" value="Kadhir Mohideen College, Adirampattinam"/>
-            <Row label="MCA Passed" value="2020"/>
-            <Row label="BCA Passed" value="2018"/>
-            <Row label="IT Experience" value="5 Years"/>
+          <Card icon={sectionIcons.education} title={t("sections.education")} delay={60}>
+            {profileSections.education?.map(([labelKey, value]) => (
+              <Row key={labelKey} rowKey={labelKey} label={t(labelKey)} value={value} rtl={rtl} />
+            ))}
           </Card>
 
           {/* Professional */}
-          <Card icon="💼" title="Professional Profile" delay={120}>
-            <Row label="Designation" value="Senior Software Engineer"/>
-            <Row label="Company" value="Capgemini, Chennai"/>
-            <Row label="Work Mode" value="Hybrid (Office + Remote)"/>
-            <Row label="Annual CTC" value="₹ 13 LPA"/>
+          <Card icon={sectionIcons.professional} title={t("sections.professional")} delay={120}>
+            {profileSections.professional?.map(([labelKey, value]) => (
+              <Row key={labelKey} rowKey={labelKey} label={t(labelKey)} value={value} rtl={rtl} />
+            ))}
           </Card>
 
           {/* Family */}
-          <Card icon="🏡" title="Family Details" delay={180}>
-            <Row label="Father" value="Late Sheik Mydeen (Passed Away)"/>
-            <Row label="Mother" value="Ajmath Banu · Homemaker"/>
-            <Row label="Native Place" value="Adirampattinam, Thanjavur Dist."/>
-            <Row label="Current Stay" value="Rental Home, Adirampattinam"/>
+          <Card icon={sectionIcons.family} title={t("sections.family")} delay={180}>
+            {profileSections.family?.map(([labelKey, value]) => (
+              <Row key={labelKey} rowKey={labelKey} label={t(labelKey)} value={value} rtl={rtl} />
+            ))}
             {/* Housing note */}
             <div style={{
               margin:"14px 0",padding:"14px 16px",
               background:"linear-gradient(135deg,rgba(201,168,76,0.08),rgba(201,168,76,0.03))",
               border:"1px solid rgba(201,168,76,0.2)",
-              borderLeft:"3px solid #c9a84c",
+              borderInlineStart:"3px solid #c9a84c",
               borderRadius:"8px"
             }}>
               <div style={{fontFamily:"Lato,sans-serif",color:"rgba(253,246,227,0.75)",fontSize:"clamp(11px,2.5vw,13px)",lineHeight:"1.8"}}>
-                🏗️ Our old house has been demolished and the land is kept.{" "}
-                <span style={{color:"#e8c96a",fontFamily:"Playfair Display,serif",fontStyle:"italic"}}>Inshallah, a new house will be built very soon.</span>
+                {t("text.housingNote")}
               </div>
             </div>
             {/* Siblings */}
             <div style={{marginTop:"4px",padding:"14px 16px",background:"rgba(201,168,76,0.04)",border:"1px solid rgba(201,168,76,0.12)",borderRadius:"8px"}}>
-              <div style={{color:"rgba(201,168,76,0.5)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"12px",fontFamily:"Lato,sans-serif"}}>Siblings</div>
-              {[
-                {icon:"👩",label:"Elder Sister 1",value:"Married · Living in Adirampattinam"},
-                {icon:"👩",label:"Elder Sister 2",value:"Married · Living in Chennai"},
-                {icon:"👦",label:"Younger Brother",value:"Unmarried"},
-              ].map(s=>(
+              <div style={{color:"rgba(201,168,76,0.5)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"12px",fontFamily:"Lato,sans-serif"}}>{t("common.siblings")}</div>
+              {siblings.map(s => (
                 <div key={s.label} style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px"}}>
                   <div style={{
                     width:"34px",height:"34px",borderRadius:"8px",flexShrink:0,
@@ -742,38 +882,38 @@ export default function MarriageBio() {
           </Card>
 
           {/* About */}
-          <Card icon="🌙" title="About Me" delay={240}>
+          <Card icon={sectionIcons.about} title={t("sections.about")} delay={240}>
             <p style={{color:"rgba(253,246,227,0.75)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",marginBottom:"12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-              Alhamdulillah, I lead a disciplined, value-driven life rooted in Islamic principles and traditional South Indian Muslim culture. My daily routines prioritize health, consistency, and long-term growth — both worldly and spiritual.
+              {t("text.about1")}
             </p>
             <p style={{color:"rgba(253,246,227,0.5)",fontSize:"clamp(11px,2.5vw,13px)",lineHeight:"1.95",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-              I believe in simple living, strong family bonds, and fulfilling responsibilities with sincerity. Committed to building a home grounded in taqwa, mutual respect, and purposeful living.
+              {t("text.about2")}
             </p>
             <div style={{
               marginTop:"16px",
               padding:"14px 18px",
               background:"linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.04))",
               border:"1px solid rgba(201,168,76,0.25)",
-              borderLeft:"3px solid #c9a84c",
+              borderInlineStart:"3px solid #c9a84c",
               borderRadius:"8px"
             }}>
               <p style={{color:"#e8d5a0",fontSize:"clamp(11px,2.6vw,13px)",lineHeight:"2",fontFamily:"Lato,sans-serif",fontWeight:"300",fontStyle:"italic",margin:0}}>
-                🤝 Inshallah, I will always support you and stand by your side in every situation. My mother and sisters will also welcome and support you wholeheartedly. My sisters will care for you like a true friend — with no ego, no distance, only warmth and love.
+                {t("text.aboutSupport")}
               </p>
             </div>
           </Card>
 
           {/* Core Values */}
-          <Card icon="⭐" title="Core Values & Character" delay={300}>
+          <Card icon={sectionIcons.coreValues} title={t("sections.coreValues")} delay={300}>
             <div style={{display:"flex",flexWrap:"wrap",gap:"0"}}>
-              {coreValues.map(v=><Pill key={v}>{v}</Pill>)}
+              {coreValuesList.map(v => <Pill key={v}>{v}</Pill>)}
             </div>
           </Card>
 
           {/* Hobbies */}
-          <Card icon="🎯" title="Hobbies & Interests" delay={360}>
+          <Card icon={sectionIcons.hobbies} title={t("sections.hobbies")} delay={360}>
             <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
-              {hobbies.map(h=>(
+              {hobbiesList.map(h => (
                 <div key={h} style={{
                   padding:"10px 14px",
                   background:"linear-gradient(135deg,rgba(201,168,76,0.07),rgba(201,168,76,0.02))",
@@ -787,10 +927,10 @@ export default function MarriageBio() {
           </Card>
 
           {/* Lifestyle */}
-          <Card icon="🕌" title="Lifestyle & Habits" delay={420}>
-            <p style={{color:"rgba(253,246,227,0.3)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"12px",fontFamily:"Lato,sans-serif"}}>Strictly Avoids</p>
+          <Card icon={sectionIcons.lifestyle} title={t("sections.lifestyle")} delay={420}>
+            <p style={{color:"rgba(253,246,227,0.3)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"12px",fontFamily:"Lato,sans-serif"}}>{t("common.strictlyAvoids")}</p>
             <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"7px"}}>
-              {lifestyle.map(({icon,text})=>(
+              {lifestyleItems.map(({ icon, text }) => (
                 <div key={text} style={{
                   display:"flex",alignItems:"center",gap:"8px",
                   padding:"9px 12px",
@@ -806,9 +946,9 @@ export default function MarriageBio() {
           </Card>
 
           {/* Food */}
-          <Card icon="🍽️" title="Food Preferences" delay={480}>
+          <Card icon={sectionIcons.food} title={t("sections.food")} delay={480}>
             <div style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
-              {foods.map(f=>(
+              {foodsList.map(f => (
                 <div key={f.n} style={{
                   padding:"9px 16px",
                   background:"linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.03))",
@@ -822,7 +962,7 @@ export default function MarriageBio() {
           </Card>
 
           {/* Mahr */}
-          <Card icon="💛" title="Mahr (Dowry)" delay={520}>
+          <Card icon={sectionIcons.mahr} title={t("sections.mahr")} delay={520}>
             <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
               <div style={{
                 padding:"14px 16px",
@@ -832,18 +972,28 @@ export default function MarriageBio() {
                 fontFamily:"Lato,sans-serif",color:"rgba(253,246,227,0.8)",
                 fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.9",fontWeight:"300"
               }}>
-                🤲 <span style={{color:"#e8c96a",fontFamily:"Playfair Display,serif",fontStyle:"italic"}}>InshaAllah,</span> whatever she asks for as Mahr, I am willing to give. My personal desire is to give her <span style={{color:"#e8d080",fontWeight:"700"}}>80 sovereigns of gold.</span>
+                <InlineIconText icon="🤲">
+                  {renderHighlightedText(
+                    t("text.mahr1"),
+                    getTextHighlights(i18n.language, "mahr1", accentTextStyle, strongAccentStyle)
+                  )}
+                </InlineIconText>
               </div>
               <div style={{
                 padding:"14px 16px",
                 background:"linear-gradient(135deg,rgba(201,168,76,0.08),rgba(201,168,76,0.02))",
                 border:"1px solid rgba(201,168,76,0.2)",
-                borderLeft:"3px solid #c9a84c",
+                borderInlineStart:"3px solid #c9a84c",
                 borderRadius:"8px",
                 fontFamily:"Lato,sans-serif",color:"rgba(253,246,227,0.75)",
                 fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.9",fontWeight:"300"
               }}>
-                ✨ <span style={{color:"#e8c96a",fontFamily:"Playfair Display,serif",fontStyle:"italic"}}>Alhamdulillah,</span> from the salary I earned from the job that Allah blessed me with, I have already bought <span style={{color:"#e8d080",fontWeight:"700"}}>86 grams of gold</span> for the Mahr.
+                <InlineIconText icon="✨">
+                  {renderHighlightedText(
+                    t("text.mahr2"),
+                    getTextHighlights(i18n.language, "mahr2", accentTextStyle, strongAccentStyle)
+                  )}
+                </InlineIconText>
               </div>
               <div style={{
                 padding:"12px 16px",
@@ -854,30 +1004,47 @@ export default function MarriageBio() {
                 fontSize:"clamp(11px,2.5vw,13px)",lineHeight:"1.8",fontWeight:"300",
                 fontStyle:"italic"
               }}>
-                🔒 This gold does not belong to my mother, sister, or any family member — it is solely reserved for the Mahr.
+                <InlineIconText icon="🔒" dimmed>
+                  {t("text.mahr3")}
+                </InlineIconText>
               </div>
             </div>
           </Card>
 
           {/* Future Vision */}
-          <Card icon="🌱" title="Background & Future Vision" delay={535}>
+          <Card icon={sectionIcons.future} title={t("sections.future")} delay={535}>
             <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
               <p style={{color:"rgba(253,246,227,0.75)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-                I come from a simple background and currently do not own land or large wealth. However, <span style={{color:"#e8c96a",fontFamily:"Playfair Display,serif",fontStyle:"italic"}}>Alhamdulillah,</span> Allah has blessed me with a good career and the opportunity to grow while striving to practice Islam sincerely.
+                <InlineIconText icon="✨">
+                  {renderHighlightedText(
+                    t("text.future1"),
+                    getTextHighlights(i18n.language, "future1", accentTextStyle, strongAccentStyle)
+                  )}
+                </InlineIconText>
               </p>
               <p style={{color:"rgba(253,246,227,0.65)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-                I believe that <span style={{color:"#e8d080",fontWeight:"400"}}>rizq comes from Allah</span>, and with His blessings and consistent effort, I hope to continue improving in both Deen and Dunya.
+                <InlineIconText icon="✨">
+                  {renderHighlightedText(
+                    t("text.future2"),
+                    getTextHighlights(i18n.language, "future2", accentTextStyle, strongAccentStyle)
+                  )}
+                </InlineIconText>
               </p>
               <div style={{
                 padding:"14px 16px",
                 background:"linear-gradient(135deg,rgba(201,168,76,0.09),rgba(201,168,76,0.02))",
                 border:"1px solid rgba(201,168,76,0.2)",
-                borderLeft:"3px solid #c9a84c",
+                borderInlineStart:"3px solid #c9a84c",
                 borderRadius:"8px",
                 fontFamily:"Lato,sans-serif",color:"rgba(253,246,227,0.75)",
                 fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",fontWeight:"300"
               }}>
-                🏡 <span style={{color:"#e8c96a",fontFamily:"Playfair Display,serif",fontStyle:"italic"}}>InshaAllah,</span> in the future I aim to <span style={{color:"#e8d080"}}>buy land, build our own home, and start a business</span> to provide a stable and comfortable life for my family.
+                <InlineIconText icon="🏡">
+                  {renderHighlightedText(
+                    t("text.future3"),
+                    getTextHighlights(i18n.language, "future3", accentTextStyle, strongAccentStyle)
+                  )}
+                </InlineIconText>
               </div>
               <div style={{
                 padding:"14px 16px",
@@ -887,27 +1054,22 @@ export default function MarriageBio() {
                 fontFamily:"Playfair Display,serif",fontStyle:"italic",
                 color:"#e8d5a0",fontSize:"clamp(12px,2.8vw,15px)",lineHeight:"1.9"
               }}>
-                ❝ My intention is to build a marriage based on Deen, mutual respect, and supporting each other in obeying Allah and following the Sunnah. ❞
+                {t("text.futureQuote")}
               </div>
             </div>
           </Card>
 
           {/* Partner */}
-          <Card icon="🤲" title="Partner Expectations" delay={540}>
+          <Card icon={sectionIcons.partner} title={t("sections.partner")} delay={540}>
             <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
               <p style={{color:"rgba(253,246,227,0.75)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-                Seeking a practicing Muslimah of good character, strong deen, and a family-oriented mindset. She should value simplicity, maintain a clean lifestyle, and be willing to build a home grounded in Islamic principles, mutual respect, and purposeful growth together.
+                {t("text.partner1")}
               </p>
 
               {/* Preferred */}
-              <div style={{padding:"14px 16px",background:"linear-gradient(135deg,rgba(201,168,76,0.09),rgba(201,168,76,0.02))",border:"1px solid rgba(201,168,76,0.2)",borderLeft:"3px solid #c9a84c",borderRadius:"8px"}}>
-                <div style={{color:"rgba(201,168,76,0.55)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"10px",fontFamily:"Lato,sans-serif"}}>Preferred Qualities</div>
-                {[
-                  {icon:"📖", text:"Hafiza or currently pursuing Hifz (highly preferred)"},
-                  {icon:"🕌", text:"Strives to practice Islam sincerely & follow the Sunnah"},
-                  {icon:"☝️", text:"Upholds Tawhid and Islamic principles in daily life"},
-                  {icon:"🎓", text:"Good education along with commitment to practising Islam"},
-                ].map(({icon,text}) => (
+              <div style={{padding:"14px 16px",background:"linear-gradient(135deg,rgba(201,168,76,0.09),rgba(201,168,76,0.02))",border:"1px solid rgba(201,168,76,0.2)",borderInlineStart:"3px solid #c9a84c",borderRadius:"8px"}}>
+                <div style={{color:"rgba(201,168,76,0.55)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"10px",fontFamily:"Lato,sans-serif"}}>{t("common.preferredQualities")}</div>
+                {preferredQualities.map(({ icon, text }) => (
                   <div key={text} style={{display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"9px"}}>
                     <span style={{fontSize:"14px",marginTop:"1px"}}>{icon}</span>
                     <span style={{color:"rgba(253,246,227,0.75)",fontSize:"clamp(12px,2.8vw,13px)",fontFamily:"Lato,sans-serif",fontWeight:"300",lineHeight:"1.7"}}>{text}</span>
@@ -917,12 +1079,12 @@ export default function MarriageBio() {
 
               {/* Language */}
               <div style={{padding:"14px 16px",background:"rgba(201,168,76,0.04)",border:"1px solid rgba(201,168,76,0.12)",borderRadius:"8px"}}>
-                <div style={{color:"rgba(201,168,76,0.55)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"10px",fontFamily:"Lato,sans-serif"}}>Language & Background</div>
+                <div style={{color:"rgba(201,168,76,0.55)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"10px",fontFamily:"Lato,sans-serif"}}>{t("common.languageBackground")}</div>
                 <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,13px)",fontFamily:"Lato,sans-serif",fontWeight:"300",lineHeight:"1.85",marginBottom:"10px"}}>
-                  Language is not a major barrier. Urdu speakers are welcome, and basic understanding of Tamil or English would be helpful for communication.
+                  {t("text.partnerLanguage")}
                 </p>
                 <div style={{display:"flex",flexWrap:"wrap",gap:"7px"}}>
-                  {["🗣️ Tamil","🗣️ Urdu","🗣️ Malayalam"].map(l => (
+                  {partnerLanguages.map(l => (
                     <span key={l} style={{padding:"5px 14px",background:"linear-gradient(135deg,rgba(201,168,76,0.12),rgba(201,168,76,0.04))",border:"1px solid rgba(201,168,76,0.25)",borderRadius:"20px",color:"#e8d090",fontSize:"clamp(11px,2.4vw,12px)",fontFamily:"Lato,sans-serif"}}>{l}</span>
                   ))}
                 </div>
@@ -931,15 +1093,15 @@ export default function MarriageBio() {
               {/* Age preference */}
               <div style={{padding:"14px 16px",background:"rgba(201,168,76,0.04)",border:"1px solid rgba(201,168,76,0.12)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:"12px"}}>
                 <div>
-                  <div style={{color:"rgba(201,168,76,0.55)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"5px",fontFamily:"Lato,sans-serif"}}>Preferred Age Range</div>
-                  <div style={{color:"#fdf6e3",fontSize:"clamp(14px,3vw,18px)",fontFamily:"Playfair Display,serif",fontWeight:"600",letterSpacing:"1px"}}>18 – 20 Years</div>
+                  <div style={{color:"rgba(201,168,76,0.55)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"5px",fontFamily:"Lato,sans-serif"}}>{t("common.preferredAgeRange")}</div>
+                  <div style={{color:"#fdf6e3",fontSize:"clamp(14px,3vw,18px)",fontFamily:"Playfair Display,serif",fontWeight:"600",letterSpacing:"1px"}}>{t("profile.preferredAgeRangeValue")}</div>
                 </div>
-                <div style={{fontSize:"28px"}}>👰</div>
+                <div style={{fontSize:"28px"}}>{sectionIcons.age}</div>
               </div>
 
               {/* Personal wish quote */}
               <div style={{padding:"14px 16px",background:"linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.03))",border:"1px solid rgba(201,168,76,0.25)",borderRadius:"8px",fontFamily:"Playfair Display,serif",fontStyle:"italic",color:"#e8d5a0",fontSize:"clamp(12px,2.8vw,15px)",lineHeight:"1.9"}}>
-                ❝ I wish to build a peaceful Islamic family where we practice Islam together and support each other in faith, life, and responsibilities. ❞
+                {t("text.partnerQuote")}
               </div>
             </div>
           </Card>
@@ -952,27 +1114,23 @@ export default function MarriageBio() {
             textAlign:"center",marginTop:"4px",
             position:"relative"
           }}>
-            <div style={{position:"absolute",top:0,left:"20px",right:"20px",height:"1px",background:"linear-gradient(to right,transparent,#c9a84c,transparent)"}}/>
+            <div style={{position:"absolute",top:0,insetInline:"20px",height:"1px",background:"linear-gradient(to right,transparent,#c9a84c,transparent)"}}/>
             <div style={{
               fontFamily:"Playfair Display,serif",
               color:"#e8d5a0",fontSize:"clamp(13px,3vw,16px)",
               fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",
               marginBottom:"20px"
-            }}>Contact</div>
+            }}>{t("sections.contact")}</div>
             <div style={{display:"flex",flexDirection:"column",gap:"12px",alignItems:"center"}}>
-              {[
-                {href:"tel:+917695974797",text:"📞  +91 76959 74797  (WhatsApp)"},
-                {href:"mailto:marriage.profile.contact@gmail.com",text:"📧  marriage.profile.contact@gmail.com"},
-                {href:null,text:"📍  Chennai & Adirampattinam, Tamil Nadu"},
-              ].map(({href,text})=>href ? (
+              {contactItems.map(({ href, icon, text }) => href ? (
                 <a key={text} href={href} style={{
                   color:"#c9a84c",textDecoration:"none",
                   fontSize:"clamp(12px,3vw,15px)",
                   fontFamily:"Lato,sans-serif",fontWeight:"400",
                   letterSpacing:"0.3px"
-                }}>{text}</a>
+                }}>{icon} {text}</a>
               ) : (
-                <span key={text} style={{color:"#c9a84c",fontSize:"clamp(12px,3vw,14px)",fontFamily:"Lato,sans-serif"}}>{text}</span>
+                <span key={text} style={{color:"#c9a84c",fontSize:"clamp(12px,3vw,14px)",fontFamily:"Lato,sans-serif"}}>{icon} {text}</span>
               ))}
             </div>
             <div style={{marginTop:"22px"}}>
@@ -985,8 +1143,8 @@ export default function MarriageBio() {
               fontFamily:"Playfair Display,serif",fontStyle:"italic",
               lineHeight:"1.9"
             }}>
-              ❝ And of His signs is that He created for you from yourselves mates<br/>that you may find tranquility in them ❞
-              <div style={{marginTop:"4px",fontFamily:"Lato,sans-serif",fontSize:"10px",letterSpacing:"2px",color:"rgba(201,168,76,0.3)"}}>— SURAH AR-RUM 30:21</div>
+              {t("text.quranQuote")}
+              <div style={{marginTop:"4px",fontFamily:"Lato,sans-serif",fontSize:"10px",letterSpacing:"2px",color:"rgba(201,168,76,0.3)"}}>{t("text.quranRef")}</div>
             </div>
           </div>
         </div>
@@ -996,4 +1154,11 @@ export default function MarriageBio() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
