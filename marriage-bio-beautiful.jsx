@@ -1008,6 +1008,45 @@ export default function MarriageBio() {
                   {t("text.mahr3")}
                 </InlineIconText>
               </div>
+              <div style={{
+                padding:"14px 16px",
+                background:"linear-gradient(135deg,rgba(201,168,76,0.07),rgba(201,168,76,0.02))",
+                border:"1px solid rgba(201,168,76,0.22)",
+                borderRadius:"8px",
+                fontFamily:"Lato,sans-serif",color:"rgba(253,246,227,0.78)",
+                fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.9",fontWeight:"300"
+              }}>
+                <div style={{
+                  display:"flex",alignItems:"center",gap:"8px",
+                  marginBottom:"10px",
+                  fontFamily:"Playfair Display,serif",
+                  color:"#e8d5a0",
+                  fontSize:"clamp(13px,3vw,15px)",
+                  fontWeight:"700"
+                }}>
+                  <span aria-hidden="true" style={{fontSize:"18px"}}>🤝</span>
+                  <span>{t("text.groomSideTitle")}</span>
+                </div>
+
+                <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+                  <p style={{margin:0}}>
+                    <InlineIconText icon="🤲">
+                      {t("text.groomSide1")}
+                    </InlineIconText>
+                  </p>
+                  <p style={{margin:0}}>{t("text.groomSide2")}</p>
+                  <p style={{margin:0}}>
+                    <InlineIconText icon="✨">
+                      {t("text.groomSide3")}
+                    </InlineIconText>
+                  </p>
+                  <p style={{margin:0,fontWeight:"800",color:"#fdf6e3"}}>
+                    <InlineIconText icon="🤍">
+                      {t("text.groomSide4")}
+                    </InlineIconText>
+                  </p>
+                </div>
+              </div>
             </div>
           </Card>
 
