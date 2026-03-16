@@ -109,7 +109,9 @@
       { "icon": "🥛", "text": "No Milk" },
       { "icon": "🍔", "text": "No Junk Food" },
       { "icon": "🎬", "text": "Does not watch movies" },
-      { "icon": "🎵", "text": "Does not listen to songs" }
+      { "icon": "🎵", "text": "Does not listen to songs" },
+      { "icon": "📵", "text": "No Instagram / No Facebook" },
+      { "icon": "📵", "text": "Not addicted to social media" }
     ],
     "coreValues": [
       "Fitness-Focused",
@@ -200,7 +202,7 @@
         ["rows.designation", "Senior Software Engineer"],
         ["rows.company", "Capgemini, Chennai"],
         ["rows.workMode", "Hybrid (Office + Remote)"],
-        ["rows.annualCtc", "INR 13 LPA"]
+        ["rows.annualCtc", "₹13,00,000 (Thirteen Lakhs Per Annum)"]
       ],
       "family": [
         ["rows.father", "Late Sheik Mydeen (Passed Away)"],
@@ -215,9 +217,9 @@
       { "icon": "👦", "label": "Younger Brother", "value": "Unmarried" }
     ],
     "contactItems": [
-      { "href": "tel:+917695974797", "icon": "📱", "text": "+91 76959 74797 (WhatsApp)" },
-      { "href": "mailto:marriage.profile.contact@gmail.com", "icon": "✉️", "text": "marriage.profile.contact@gmail.com" },
-      { "href": null, "icon": "📍", "text": "Chennai & Adirampattinam, Tamil Nadu" }
+      { "href": "tel:+919884345998", "icon": "👨", "text": "Male Family Contact: Raffic Ansari – +91 9884345998" },
+      { "href": "tel:+919791966246", "icon": "👩", "text": "Female Family Contact: Farishan – +91 9791966246" },
+      { "href": "tel:+917695974797", "icon": "📱", "text": "WhatsApp: +91 7695974797" }
     ],
     "preferredAgeRangeValue": "18 - 20 Years"
   }

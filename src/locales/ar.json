@@ -109,7 +109,9 @@
       { "icon": "🥛", "text": "لا يشرب الحليب" },
       { "icon": "🍔", "text": "لا يتناول الوجبات السريعة" },
       { "icon": "🎬", "text": "لا يشاهد الأفلام" },
-      { "icon": "🎵", "text": "لا يستمع إلى الأغاني" }
+      { "icon": "🎵", "text": "لا يستمع إلى الأغاني" },
+      { "icon": "📵", "text": "لا إنستغرام / لا فيسبوك" },
+      { "icon": "📵", "text": "غير مدمن على وسائل التواصل الاجتماعي" }
     ],
     "coreValues": [
       "محب للياقة",
@@ -200,7 +202,7 @@
         ["rows.designation", "مهندس برمجيات أول"],
         ["rows.company", "Capgemini، تشيناي"],
         ["rows.workMode", "هجين (مكتب + عن بُعد)"],
-        ["rows.annualCtc", "INR 13 LPA"]
+        ["rows.annualCtc", "₹13,00,000 (ثلاثة عشر لاك سنوياً)"]
       ],
       "family": [
         ["rows.father", "المرحوم شيخ ميدين"],
@@ -215,9 +217,9 @@
       { "icon": "👦", "label": "الأخ الأصغر", "value": "غير متزوج" }
     ],
     "contactItems": [
-      { "href": "tel:+917695974797", "icon": "📱", "text": "+91 76959 74797 (WhatsApp)" },
-      { "href": "mailto:marriage.profile.contact@gmail.com", "icon": "✉️", "text": "marriage.profile.contact@gmail.com" },
-      { "href": null, "icon": "📍", "text": "تشيناي وأديرامباتينام، تاميل نادو" }
+      { "href": "tel:+919884345998", "icon": "👨", "text": "اتصال العائلة (رجال): Raffic Ansari – +91 9884345998" },
+      { "href": "tel:+919791966246", "icon": "👩", "text": "اتصال العائلة (نساء): Farishan – +91 9791966246" },
+      { "href": "tel:+917695974797", "icon": "📱", "text": "واتساب: +91 7695974797" }
     ],
     "preferredAgeRangeValue": "18 - 20 سنة"
   }

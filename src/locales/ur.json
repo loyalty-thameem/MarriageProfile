@@ -109,7 +109,9 @@
       { "icon": "🥛", "text": "دودھ نہیں" },
       { "icon": "🍔", "text": "جنک فوڈ نہیں" },
       { "icon": "🎬", "text": "فلمیں نہیں دیکھتا" },
-      { "icon": "🎵", "text": "گانے نہیں سنتا" }
+      { "icon": "🎵", "text": "گانے نہیں سنتا" },
+      { "icon": "📵", "text": "انسٹاگرام نہیں / فیس بک نہیں" },
+      { "icon": "📵", "text": "سوشل میڈیا کا عادی نہیں" }
     ],
     "coreValues": [
       "فٹنس پر توجہ",
@@ -200,7 +202,7 @@
         ["rows.designation", "سینئر سافٹ ویئر انجینئر"],
         ["rows.company", "Capgemini, چنئی"],
         ["rows.workMode", "ہائبرڈ (آفس + ریموٹ)"],
-        ["rows.annualCtc", "INR 13 LPA"]
+        ["rows.annualCtc", "₹13,00,000 (تیرہ لاکھ سالانہ)"]
       ],
       "family": [
         ["rows.father", "مرحوم شیخ میدین"],
@@ -215,9 +217,9 @@
       { "icon": "👦", "label": "چھوٹا بھائی", "value": "غیر شادی شدہ" }
     ],
     "contactItems": [
-      { "href": "tel:+917695974797", "icon": "📱", "text": "+91 76959 74797 (WhatsApp)" },
-      { "href": "mailto:marriage.profile.contact@gmail.com", "icon": "✉️", "text": "marriage.profile.contact@gmail.com" },
-      { "href": null, "icon": "📍", "text": "چنئی اور ادیرامپٹنم، تمل ناڈو" }
+      { "href": "tel:+919884345998", "icon": "👨", "text": "خاندانی رابطہ (مرد): Raffic Ansari – +91 9884345998" },
+      { "href": "tel:+919791966246", "icon": "👩", "text": "خاندانی رابطہ (خواتین): Farishan – +91 9791966246" },
+      { "href": "tel:+917695974797", "icon": "📱", "text": "واٹس ایپ: +91 7695974797" }
     ],
     "preferredAgeRangeValue": "18 - 20 سال"
   }

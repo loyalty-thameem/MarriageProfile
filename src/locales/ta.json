@@ -109,7 +109,9 @@
       { "icon": "🥛", "text": "பால் இல்லை" },
       { "icon": "🍔", "text": "ஜங்க் உணவு இல்லை" },
       { "icon": "🎬", "text": "திரைப்படங்கள் பார்க்க மாட்டார்" },
-      { "icon": "🎵", "text": "பாடல்கள் கேட்க மாட்டார்" }
+      { "icon": "🎵", "text": "பாடல்கள் கேட்க மாட்டார்" },
+      { "icon": "📵", "text": "இன்ஸ்டாகிராம் இல்லை / ஃபேஸ்புக் இல்லை" },
+      { "icon": "📵", "text": "சோஷியல் மீடியாவிற்கு அடிமையல்ல" }
     ],
     "coreValues": [
       "உடற்பயிற்சி கவனம்",
@@ -200,7 +202,7 @@
         ["rows.designation", "மூத்த மென்பொருள் பொறியாளர்"],
         ["rows.company", "Capgemini, சென்னை"],
         ["rows.workMode", "ஹைப்ரிட் (அலுவலகம் + தொலைபணி)"],
-        ["rows.annualCtc", "INR 13 LPA"]
+        ["rows.annualCtc", "₹13,00,000 (வருடத்திற்கு பதிமூன்று லட்சம்)"]
       ],
       "family": [
         ["rows.father", "மறைந்த ஷேக் மைதீன்"],
@@ -215,9 +217,9 @@
       { "icon": "👦", "label": "இளைய சகோதரர்", "value": "திருமணம் ஆகவில்லை" }
     ],
     "contactItems": [
-      { "href": "tel:+917695974797", "icon": "📱", "text": "+91 76959 74797 (WhatsApp)" },
-      { "href": "mailto:marriage.profile.contact@gmail.com", "icon": "✉️", "text": "marriage.profile.contact@gmail.com" },
-      { "href": null, "icon": "📍", "text": "சென்னை & அதிராம்பட்டினம், தமிழ்நாடு" }
+      { "href": "tel:+919884345998", "icon": "👨", "text": "ஆண் குடும்ப தொடர்பு: Raffic Ansari – +91 9884345998" },
+      { "href": "tel:+919791966246", "icon": "👩", "text": "பெண் குடும்ப தொடர்பு: Farishan – +91 9791966246" },
+      { "href": "tel:+917695974797", "icon": "📱", "text": "வாட்ஸ்அப்: +91 7695974797" }
     ],
     "preferredAgeRangeValue": "18 - 20 வயது"
   }

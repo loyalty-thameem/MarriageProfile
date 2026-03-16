@@ -109,7 +109,9 @@
       { "icon": "🥛", "text": "പാൽ ഇല്ല" },
       { "icon": "🍔", "text": "ജങ്ക് ഫുഡ് ഇല്ല" },
       { "icon": "🎬", "text": "സിനിമകൾ കാണാറില്ല" },
-      { "icon": "🎵", "text": "പാട്ടുകൾ കേൾക്കാറില്ല" }
+      { "icon": "🎵", "text": "പാട്ടുകൾ കേൾക്കാറില്ല" },
+      { "icon": "📵", "text": "ഇൻസ്റ്റാഗ്രാം ഇല്ല / ഫേസ്ബുക്ക് ഇല്ല" },
+      { "icon": "📵", "text": "സോഷ്യൽ മീഡിയക്ക് അടിമയല്ല" }
     ],
     "coreValues": [
       "ഫിറ്റ്നസ് കേന്ദ്രീകൃതം",
@@ -200,7 +202,7 @@
         ["rows.designation", "സീനിയർ സോഫ്റ്റ്വെയർ എഞ്ചിനിയർ"],
         ["rows.company", "Capgemini, ചെന്നൈ"],
         ["rows.workMode", "ഹൈബ്രിഡ് (ഓഫീസ് + റിമോട്ട്)"],
-        ["rows.annualCtc", "INR 13 LPA"]
+        ["rows.annualCtc", "₹13,00,000 (വർഷം പതിമൂന്ന് ലക്ഷം)"]
       ],
       "family": [
         ["rows.father", "പരേതനായ ഷെയ്ഖ് മൈദീൻ"],
@@ -215,9 +217,9 @@
       { "icon": "👦", "label": "ഇളയ സഹോദരൻ", "value": "വിവാഹം കഴിച്ചിട്ടില്ല" }
     ],
     "contactItems": [
-      { "href": "tel:+917695974797", "icon": "📱", "text": "+91 76959 74797 (WhatsApp)" },
-      { "href": "mailto:marriage.profile.contact@gmail.com", "icon": "✉️", "text": "marriage.profile.contact@gmail.com" },
-      { "href": null, "icon": "📍", "text": "ചെന്നൈ & അദിറാംപട്ടിണം, തമിഴ്നാട്" }
+      { "href": "tel:+919884345998", "icon": "👨", "text": "പുരുഷ കുടുംബ കോൺടാക്ട്: Raffic Ansari – +91 9884345998" },
+      { "href": "tel:+919791966246", "icon": "👩", "text": "സ്ത്രീ കുടുംബ കോൺടാക്ട്: Farishan – +91 9791966246" },
+      { "href": "tel:+917695974797", "icon": "📱", "text": "വാട്ട്സ്ആപ്പ്: +91 7695974797" }
     ],
     "preferredAgeRangeValue": "18 - 20 വയസ്"
   }

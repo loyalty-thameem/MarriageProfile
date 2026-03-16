@@ -939,7 +939,7 @@ export default function MarriageBio() {
                   borderRadius:"8px"
                 }}>
                   <span style={{fontSize:"14px"}}>{icon}</span>
-                  <span style={{color:"#d4c070",fontSize:"clamp(10px,2.3vw,12px)",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>{text}</span>
+                  <span style={{color:"#d4c070",fontSize:"clamp(10px,2.3vw,12px)",fontFamily:"Lato,sans-serif",fontWeight:"300",whiteSpace:"pre-line"}}>{text}</span>
                 </div>
               ))}
             </div>
