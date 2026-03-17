@@ -140,7 +140,7 @@ const renderHighlightedText = (text, highlights) => {
 
 const HIGHLIGHT_PHRASES = {
   en: {
-    mahr1: ["InshaAllah,", "80 sovereigns of gold"],
+    mahr1: ["InshaAllah,", "80 grams of gold"],
     mahr2: ["Alhamdulillah,", "86 grams of gold"],
     future1: ["Alhamdulillah,"],
     future2: ["rizq comes from Allah"],
