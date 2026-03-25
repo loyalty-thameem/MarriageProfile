@@ -939,6 +939,9 @@ export default function MarriageBio() {
             <p style={{color:"rgba(253,246,227,0.5)",fontSize:"clamp(11px,2.5vw,13px)",lineHeight:"1.95",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
               {t("text.about2")}
             </p>
+            <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",marginTop:"12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+              {t("text.about3")}
+            </p>
             <div style={{
               marginTop:"16px",
               padding:"14px 18px",
