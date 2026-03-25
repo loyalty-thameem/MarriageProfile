@@ -15,6 +15,237 @@ const buildWhatsAppHref = (telHref, message) => {
   return `https://wa.me/${digits}?text=${encodeURIComponent(String(message).trim())}`;
 };
 
+const supportsSpeechSynthesis = () =>
+  typeof window !== "undefined" &&
+  "speechSynthesis" in window &&
+  "SpeechSynthesisUtterance" in window;
+
+const EMOJI_REGEX = (() => {
+  try {
+    return new RegExp("[\\p{Extended_Pictographic}\\uFE0F]", "gu");
+  } catch {
+    return null;
+  }
+})();
+
+const normalizeWhitespace = (text) => String(text || "").replace(/\s+/g, " ").trim();
+
+const normalizeSpeechText = (text) => {
+  const withoutEmoji = EMOJI_REGEX ? String(text || "").replace(EMOJI_REGEX, "") : String(text || "");
+  return normalizeWhitespace(withoutEmoji);
+};
+
+const isArabicScript = (text) => /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(text);
+const isTamilScript = (text) => /[\u0B80-\u0BFF]/.test(text);
+const isMalayalamScript = (text) => /[\u0D00-\u0D7F]/.test(text);
+
+const splitByScript = (text, defaultLang) => {
+  const raw = String(text || "");
+  if (!raw) return [];
+
+  const chunks = [];
+  let buffer = "";
+  let currentLang = defaultLang;
+
+  const langForChar = (ch) => {
+    if (isTamilScript(ch)) return "ta";
+    if (isMalayalamScript(ch)) return "ml";
+    if (isArabicScript(ch)) return defaultLang === "ur" ? "ur" : defaultLang === "ar" ? "ar" : "ar";
+    return defaultLang;
+  };
+
+  for (const ch of raw) {
+    const nextLang = langForChar(ch);
+    if (!buffer) {
+      buffer = ch;
+      currentLang = nextLang;
+      continue;
+    }
+    if (nextLang !== currentLang) {
+      const cleaned = normalizeSpeechText(buffer);
+      if (cleaned) chunks.push({ text: cleaned, lang: currentLang });
+      buffer = ch;
+      currentLang = nextLang;
+      continue;
+    }
+    buffer += ch;
+  }
+
+  const cleaned = normalizeSpeechText(buffer);
+  if (cleaned) chunks.push({ text: cleaned, lang: currentLang });
+  return chunks;
+};
+
+const chunkBySentence = (text, lang, maxChars = 260) => {
+  const cleaned = normalizeSpeechText(text);
+  if (!cleaned) return [];
+  if (cleaned.length <= maxChars) return [cleaned];
+
+  const segmenter =
+    typeof Intl !== "undefined" && Intl.Segmenter ? new Intl.Segmenter(lang || "en", { granularity: "sentence" }) : null;
+  const sentences = segmenter
+    ? Array.from(segmenter.segment(cleaned), (s) => s.segment)
+    : (() => {
+        const boundaries = new Set([".", "!", "?", "؟", "۔", "।"]);
+        const list = [];
+        let buffer = "";
+        for (let i = 0; i < cleaned.length; i += 1) {
+          const ch = cleaned[i];
+          buffer += ch;
+          if (!boundaries.has(ch)) continue;
+          const next = cleaned[i + 1] || "";
+          if (next && /\s/.test(next)) {
+            list.push(buffer);
+            buffer = "";
+          }
+        }
+        if (buffer) list.push(buffer);
+        return list;
+      })();
+
+  const chunks = [];
+  let current = "";
+
+  const pushCurrent = () => {
+    const value = normalizeWhitespace(current);
+    if (value) chunks.push(value);
+    current = "";
+  };
+
+  for (const sentenceRaw of sentences) {
+    const sentence = normalizeWhitespace(sentenceRaw);
+    if (!sentence) continue;
+
+    if (!current) {
+      current = sentence;
+      continue;
+    }
+
+    if ((current + " " + sentence).length <= maxChars) {
+      current += " " + sentence;
+      continue;
+    }
+
+    pushCurrent();
+    if (sentence.length <= maxChars) {
+      current = sentence;
+      continue;
+    }
+
+    for (let i = 0; i < sentence.length; i += maxChars) {
+      chunks.push(sentence.slice(i, i + maxChars));
+    }
+    current = "";
+  }
+
+  pushCurrent();
+  return chunks;
+};
+
+const pickAutoVoice = (voices, lang) => {
+  const desired = String(lang || "").toLowerCase();
+  if (!desired) return null;
+  const matches = (voices || []).filter((v) => String(v.lang || "").toLowerCase().startsWith(desired));
+  if (!matches.length) return null;
+  matches.sort((a, b) => Number(Boolean(b.localService)) - Number(Boolean(a.localService)));
+  return matches[0] || null;
+};
+
+const getSentenceWindow = (text, charIndex) => {
+  const value = String(text || "");
+  const index = typeof charIndex === "number" && Number.isFinite(charIndex) ? Math.max(0, charIndex) : 0;
+  const boundaryChars = [".", "!", "?", "؟", "۔", "।", "\n"];
+
+  let start = 0;
+  for (let i = index; i >= 0; i -= 1) {
+    if (boundaryChars.includes(value[i])) {
+      start = i + 1;
+      break;
+    }
+  }
+
+  let end = value.length;
+  for (let i = index; i < value.length; i += 1) {
+    if (boundaryChars.includes(value[i])) {
+      end = i + 1;
+      break;
+    }
+  }
+
+  const rawSentence = value.slice(start, end);
+  return { start, end, rawSentence, sentence: normalizeWhitespace(rawSentence) };
+};
+
+const extractSpeechSegments = (container, defaultLang) => {
+  if (!supportsSpeechSynthesis() || !container) return [];
+
+  const ignoredSelector = '[data-tts-ignore="true"], [aria-hidden="true"]';
+  const blockSelector = '[data-tts-block="true"], p, h1, h2, h3, h4, li';
+
+  const blocks = [];
+  const blockTextMap = new Map();
+
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!parent) return NodeFilter.FILTER_REJECT;
+      if (parent.closest(ignoredSelector)) return NodeFilter.FILTER_REJECT;
+
+      const quick = normalizeWhitespace(node.textContent);
+      if (!quick) return NodeFilter.FILTER_REJECT;
+
+      const el = parent;
+      if (typeof window !== "undefined") {
+        if (el.getClientRects().length === 0) return NodeFilter.FILTER_REJECT;
+        const style = window.getComputedStyle(el);
+        if (!style || style.display === "none" || style.visibility === "hidden") return NodeFilter.FILTER_REJECT;
+      }
+
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  let node = walker.nextNode();
+  while (node) {
+    const parent = node.parentElement;
+    if (parent) {
+      const block = parent.closest(blockSelector) || parent;
+      if (!block.closest(ignoredSelector)) {
+        const list = blockTextMap.get(block);
+        if (!list) {
+          blockTextMap.set(block, [node.textContent]);
+          blocks.push(block);
+        } else {
+          list.push(node.textContent);
+        }
+      }
+    }
+    node = walker.nextNode();
+  }
+
+  const segments = [];
+  for (const block of blocks) {
+    const raw = (blockTextMap.get(block) || []).join("");
+    const baseText = normalizeSpeechText(raw);
+    if (!baseText) continue;
+
+    const closestLang = block.closest("[lang]")?.getAttribute("lang");
+    const elementLang = closestLang || defaultLang || "en";
+
+    const mixed = splitByScript(baseText, elementLang);
+    for (const chunk of mixed) {
+      const parts = chunkBySentence(chunk.text, chunk.lang, 260);
+      for (const part of parts) {
+        const cleaned = normalizeSpeechText(part);
+        if (!cleaned) continue;
+        segments.push({ text: cleaned, lang: chunk.lang || elementLang, element: block });
+      }
+    }
+  }
+
+  return segments;
+};
+
 const WhatsAppMark = ({ size = 18 }) => (
   <svg
     width={size}
@@ -110,7 +341,7 @@ const ROW_VALUE_ICONS = {
 
 /* -- Info Row -- */
 const Row = ({ rowKey, label, value, rtl = false }) => (
-  <div style={{
+  <div data-tts-block="true" style={{
     display:"flex",justifyContent:"space-between",alignItems:"flex-start",
     padding:"9px 0",borderBottom:"1px solid rgba(201,168,76,0.1)",gap:"12px"
   }}>
@@ -135,7 +366,7 @@ const Row = ({ rowKey, label, value, rtl = false }) => (
 
 /* -- Tag pill -- */
 const Pill = ({ children }) => (
-  <span style={{
+  <span data-tts-block="true" style={{
     display:"inline-block",padding:"5px 13px",margin:"3px",
     background:"linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05))",
     border:"1px solid rgba(201,168,76,0.3)",
@@ -659,6 +890,15 @@ function Gallery({ rtl }) {
 export default function MarriageBio() {
   const { t, i18n } = useTranslation();
   const rtl = i18n.language === "ar" || i18n.language === "ur";
+  const tText = React.useCallback(
+    (key, hardFallback = "") => {
+      const fallback = getNestedValue(enLocale, key);
+      const defaultValue =
+        typeof fallback === "string" && fallback.trim() ? fallback : hardFallback;
+      return t(key, { defaultValue });
+    },
+    [t]
+  );
   const accentTextStyle = {
     color:"#e8c96a",
     fontFamily:"Playfair Display,serif",
@@ -691,6 +931,279 @@ export default function MarriageBio() {
   const profileSections = getObject("profile.sections");
   const siblings = getList("profile.siblings");
   const contactItems = getList("profile.contactItems");
+  const contentRef = useRef(null);
+
+  const [ttsIsReading, setTtsIsReading] = useState(false);
+  const [ttsSettingsOpen, setTtsSettingsOpen] = useState(false);
+  const [ttsRate, setTtsRate] = useState(() => {
+    if (typeof window === "undefined") return 1;
+    const saved = Number(localStorage.getItem("tts_rate"));
+    return [0.75, 1, 1.25, 1.5].includes(saved) ? saved : 1;
+  });
+  const [ttsVoiceURI, setTtsVoiceURI] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("tts_voice_uri") || "";
+  });
+  const [ttsVoices, setTtsVoices] = useState([]);
+  const [ttsToast, setTtsToast] = useState(null);
+  const [ttsNowReading, setTtsNowReading] = useState(null);
+
+  const ttsSegmentsRef = useRef([]);
+  const ttsRunIdRef = useRef(0);
+  const ttsActiveElementRef = useRef(null);
+  const ttsToastTimerRef = useRef(null);
+  const ttsBoundaryRafRef = useRef(null);
+  const ttsPendingBoundaryRef = useRef(null);
+  const ttsRateRef = useRef(ttsRate);
+  const ttsVoiceURIRef = useRef(ttsVoiceURI);
+  const ttsVoicesRef = useRef(ttsVoices);
+
+  useEffect(() => {
+    ttsRateRef.current = ttsRate;
+    if (typeof window !== "undefined") localStorage.setItem("tts_rate", String(ttsRate));
+  }, [ttsRate]);
+
+  useEffect(() => {
+    ttsVoiceURIRef.current = ttsVoiceURI;
+    if (typeof window === "undefined") return;
+    if (ttsVoiceURI) localStorage.setItem("tts_voice_uri", ttsVoiceURI);
+    else localStorage.removeItem("tts_voice_uri");
+  }, [ttsVoiceURI]);
+
+  useEffect(() => {
+    ttsVoicesRef.current = ttsVoices;
+  }, [ttsVoices]);
+
+  const showTtsToast = React.useCallback((message) => {
+    if (!message) return;
+    setTtsToast(message);
+    if (ttsToastTimerRef.current) clearTimeout(ttsToastTimerRef.current);
+    ttsToastTimerRef.current = setTimeout(() => setTtsToast(null), 3200);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (ttsToastTimerRef.current) clearTimeout(ttsToastTimerRef.current);
+    };
+  }, []);
+
+  const clearTtsHighlight = React.useCallback(() => {
+    if (ttsActiveElementRef.current) {
+      ttsActiveElementRef.current.classList.remove("tts-active");
+      ttsActiveElementRef.current = null;
+    }
+  }, []);
+
+  const stopReadAloud = React.useCallback(() => {
+    ttsRunIdRef.current += 1;
+
+    if (typeof window !== "undefined" && ttsBoundaryRafRef.current) {
+      cancelAnimationFrame(ttsBoundaryRafRef.current);
+      ttsBoundaryRafRef.current = null;
+    }
+    ttsPendingBoundaryRef.current = null;
+
+    if (supportsSpeechSynthesis()) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // ignore
+      }
+    }
+
+    clearTtsHighlight();
+    setTtsIsReading(false);
+    setTtsNowReading(null);
+  }, [clearTtsHighlight]);
+
+  const speakSegmentAt = React.useCallback(
+    function speakSegmentAt(index, runId) {
+      if (!supportsSpeechSynthesis() || runId !== ttsRunIdRef.current) return;
+
+      const segment = ttsSegmentsRef.current[index];
+      if (!segment) {
+        clearTtsHighlight();
+        setTtsIsReading(false);
+        setTtsNowReading(null);
+        showTtsToast(tText("tts.done", "Finished reading."));
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(segment.text);
+      utterance.lang = segment.lang || i18n.language;
+      utterance.rate = ttsRateRef.current;
+
+      const voices = ttsVoicesRef.current;
+      const selectedVoiceURI = ttsVoiceURIRef.current;
+      if (selectedVoiceURI) {
+        const voice = (voices || []).find((v) => v.voiceURI === selectedVoiceURI);
+        if (voice) utterance.voice = voice;
+      } else {
+        const voice = pickAutoVoice(voices, utterance.lang);
+        if (voice) utterance.voice = voice;
+      }
+
+      utterance.onstart = () => {
+        if (runId !== ttsRunIdRef.current) return;
+
+        const el = segment.element;
+        if (el && el.classList) {
+          if (ttsActiveElementRef.current && ttsActiveElementRef.current !== el) {
+            ttsActiveElementRef.current.classList.remove("tts-active");
+          }
+          el.classList.add("tts-active");
+          ttsActiveElementRef.current = el;
+
+          if (typeof window !== "undefined") {
+            const rect = el.getBoundingClientRect();
+            const margin = 120;
+            if (rect.top < margin || rect.bottom > window.innerHeight - margin) {
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }
+        }
+
+        const firstWindow = getSentenceWindow(utterance.text, 0);
+        setTtsNowReading({ sentence: firstWindow.sentence, wordRange: null, lang: utterance.lang });
+      };
+
+      utterance.onboundary = (event) => {
+        if (runId !== ttsRunIdRef.current) return;
+        if (!event || typeof event.charIndex !== "number") return;
+
+        ttsPendingBoundaryRef.current = {
+          text: utterance.text,
+          lang: utterance.lang,
+          charIndex: event.charIndex,
+          charLength: event.charLength
+        };
+
+        if (ttsBoundaryRafRef.current || typeof window === "undefined") return;
+        ttsBoundaryRafRef.current = requestAnimationFrame(() => {
+          ttsBoundaryRafRef.current = null;
+          const pending = ttsPendingBoundaryRef.current;
+          if (!pending || runId !== ttsRunIdRef.current) return;
+
+          const windowInfo = getSentenceWindow(pending.text, pending.charIndex);
+          const rawSentence = windowInfo.rawSentence || "";
+          const trimmedLeft = rawSentence.search(/\S/);
+          const leftOffset = trimmedLeft > 0 ? trimmedLeft : 0;
+          const displaySentence = normalizeWhitespace(rawSentence).trim();
+
+          const absStart = pending.charIndex;
+          const absEnd =
+            typeof pending.charLength === "number" && pending.charLength > 0
+              ? pending.charIndex + pending.charLength
+              : (() => {
+                  const tail = pending.text.slice(pending.charIndex);
+                  const match = tail.match(/^\S+/);
+                  return pending.charIndex + (match ? match[0].length : 0);
+                })();
+
+          const relStartRaw = Math.max(0, absStart - windowInfo.start);
+          const relEndRaw = Math.max(relStartRaw, Math.min(rawSentence.length, absEnd - windowInfo.start));
+          const relStart = Math.max(0, relStartRaw - leftOffset);
+          const relEnd = Math.max(relStart, Math.min(displaySentence.length, relEndRaw - leftOffset));
+
+          setTtsNowReading({
+            sentence: displaySentence || windowInfo.sentence,
+            wordRange: relEnd > relStart ? { start: relStart, end: relEnd } : null,
+            lang: pending.lang
+          });
+        });
+      };
+
+      utterance.onend = () => {
+        if (runId !== ttsRunIdRef.current) return;
+        speakSegmentAt(index + 1, runId);
+      };
+
+      utterance.onerror = () => {
+        if (runId !== ttsRunIdRef.current) return;
+        speakSegmentAt(index + 1, runId);
+      };
+
+      try {
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        speakSegmentAt(index + 1, runId);
+      }
+    },
+    [clearTtsHighlight, i18n.language, showTtsToast, tText]
+  );
+
+  const startReadAloud = React.useCallback(() => {
+    if (!supportsSpeechSynthesis()) {
+      showTtsToast(tText("tts.notSupported", "Read aloud isn't supported in this browser."));
+      return;
+    }
+
+    stopReadAloud();
+
+    const segments = extractSpeechSegments(contentRef.current, i18n.language);
+    if (!segments.length) {
+      showTtsToast(tText("tts.noText", "No readable text found."));
+      return;
+    }
+
+    ttsSegmentsRef.current = segments;
+    const runId = ttsRunIdRef.current + 1;
+    ttsRunIdRef.current = runId;
+    setTtsIsReading(true);
+    speakSegmentAt(0, runId);
+  }, [i18n.language, showTtsToast, speakSegmentAt, stopReadAloud, tText]);
+
+  const toggleReadAloud = React.useCallback(() => {
+    if (ttsIsReading) stopReadAloud();
+    else startReadAloud();
+  }, [startReadAloud, stopReadAloud, ttsIsReading]);
+
+  useEffect(() => {
+    if (!supportsSpeechSynthesis()) return undefined;
+
+    const synth = window.speechSynthesis;
+    const updateVoices = () => {
+      try {
+        setTtsVoices(synth.getVoices ? synth.getVoices() : []);
+      } catch {
+        setTtsVoices([]);
+      }
+    };
+
+    updateVoices();
+
+    if (typeof synth.addEventListener === "function") synth.addEventListener("voiceschanged", updateVoices);
+    else synth.onvoiceschanged = updateVoices;
+
+    return () => {
+      if (typeof synth.removeEventListener === "function") synth.removeEventListener("voiceschanged", updateVoices);
+      if (synth.onvoiceschanged === updateVoices) synth.onvoiceschanged = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!supportsSpeechSynthesis()) return undefined;
+
+    const handleStop = () => stopReadAloud();
+    const handleVisibility = () => {
+      if (document.hidden) handleStop();
+    };
+
+    window.addEventListener("pagehide", handleStop);
+    window.addEventListener("beforeunload", handleStop);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener("pagehide", handleStop);
+      window.removeEventListener("beforeunload", handleStop);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [stopReadAloud]);
+
+  useEffect(() => {
+    stopReadAloud();
+    setTtsSettingsOpen(false);
+  }, [i18n.language, stopReadAloud]);
 
   useEffect(() => {
     document.documentElement.lang = i18n.language;
@@ -702,6 +1215,48 @@ export default function MarriageBio() {
     i18n.changeLanguage(event.target.value);
   };
 
+  const ttsVoiceOptions = useMemo(() => {
+    const list = Array.isArray(ttsVoices) ? [...ttsVoices] : [];
+    list.sort((a, b) => {
+      const langA = String(a.lang || "");
+      const langB = String(b.lang || "");
+      const nameA = String(a.name || "");
+      const nameB = String(b.name || "");
+      return langA.localeCompare(langB) || nameA.localeCompare(nameB);
+    });
+    return list;
+  }, [ttsVoices]);
+
+  const ttsNowReadingNode = useMemo(() => {
+    const sentence = ttsNowReading?.sentence;
+    if (!sentence) return null;
+
+    const range = ttsNowReading?.wordRange;
+    if (!range || typeof range.start !== "number" || typeof range.end !== "number") return sentence;
+
+    const start = Math.max(0, Math.min(sentence.length, range.start));
+    const end = Math.max(start, Math.min(sentence.length, range.end));
+    if (end <= start) return sentence;
+
+    return (
+      <>
+        {sentence.slice(0, start)}
+        <mark className="tts-word">{sentence.slice(start, end)}</mark>
+        {sentence.slice(end)}
+      </>
+    );
+  }, [ttsNowReading]);
+
+  const ttsStartLabel = tText("tts.start", "Read Aloud");
+  const ttsStopLabel = tText("tts.pause", "Stop");
+  const ttsStartTooltip = tText("tts.readAloudTooltip", "Read aloud");
+  const ttsStopTooltip = tText("tts.pauseTooltip", "Stop reading");
+  const ttsSettingsLabel = tText("tts.settings", "Read Aloud Settings");
+  const ttsSpeedLabel = tText("tts.speed", "Speed");
+  const ttsVoiceLabel = tText("tts.voice", "Voice");
+  const ttsVoiceAutoLabel = tText("tts.voiceAuto", "Auto");
+  const ttsCloseLabel = tText("tts.close", "Close");
+
   return (
     <div style={{
       minHeight:"100vh",
@@ -709,19 +1264,34 @@ export default function MarriageBio() {
       padding:"clamp(16px,4vw,36px) clamp(10px,3vw,16px) 60px",
       position:"relative",overflow:"hidden"
     }}>
-            <div style={{position:"fixed",top:"14px",insetInlineEnd:"14px",zIndex:50}}>
-        <label style={{display:"none"}} htmlFor="language-selector">{t("language.label")}</label>
+      <div
+        data-tts-ignore="true"
+        className="tts-stack"
+        style={{
+          position: "fixed",
+          top: "14px",
+          insetInlineEnd: "14px",
+          zIndex: 50,
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          alignItems: rtl ? "flex-start" : "flex-end"
+        }}
+      >
+        <label style={{ display: "none" }} htmlFor="language-selector">
+          {t("language.label")}
+        </label>
         <select
           id="language-selector"
           value={i18n.language}
           onChange={changeLanguage}
           style={{
-            background:"rgba(9,16,24,0.9)",
-            color:"#e8d5a0",
-            border:"1px solid rgba(201,168,76,0.35)",
-            borderRadius:"8px",
-            padding:"7px 10px",
-            fontSize:"12px"
+            background: "rgba(9,16,24,0.9)",
+            color: "#e8d5a0",
+            border: "1px solid rgba(201,168,76,0.35)",
+            borderRadius: "8px",
+            padding: "7px 10px",
+            fontSize: "12px"
           }}
         >
           <option value="en">{t("language.en")}</option>
@@ -730,6 +1300,83 @@ export default function MarriageBio() {
           <option value="ta">{t("language.ta")}</option>
           <option value="ml">{t("language.ml")}</option>
         </select>
+
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <button
+            type="button"
+            onClick={toggleReadAloud}
+            className={`tts-btn ${ttsIsReading ? "tts-btn--active" : ""}`}
+            title={ttsIsReading ? ttsStopTooltip : ttsStartTooltip}
+            aria-label={ttsIsReading ? ttsStopLabel : ttsStartLabel}
+            aria-pressed={ttsIsReading}
+          >
+            <span aria-hidden="true" style={{ fontSize: "14px", lineHeight: 1 }}>
+              {ttsIsReading ? "⏹" : "🔊"}
+            </span>
+            <span style={{ whiteSpace: "nowrap" }}>{ttsIsReading ? ttsStopLabel : ttsStartLabel}</span>
+            {ttsIsReading ? (
+              <span aria-hidden="true" className="tts-wave" style={{ fontSize: "14px", lineHeight: 1 }}>
+                🔊
+              </span>
+            ) : null}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTtsSettingsOpen((v) => !v)}
+            className={`tts-btn tts-gear ${ttsSettingsOpen ? "tts-btn--active" : ""}`}
+            title={ttsSettingsLabel}
+            aria-label={ttsSettingsLabel}
+            aria-expanded={ttsSettingsOpen}
+          >
+            ⚙️
+          </button>
+        </div>
+
+        {ttsToast ? (
+          <div className="tts-toast" role="status" aria-live="polite">
+            {ttsToast}
+          </div>
+        ) : null}
+
+        {ttsSettingsOpen ? (
+          <div className="tts-panel" role="dialog" aria-label={ttsSettingsLabel}>
+            <div className="tts-panel-row">
+              <div className="tts-panel-label">{ttsSpeedLabel}</div>
+              <div className="tts-rate">
+                {[0.75, 1, 1.25, 1.5].map((rate) => (
+                  <button
+                    key={rate}
+                    type="button"
+                    className={`tts-rate-btn ${ttsRate === rate ? "is-active" : ""}`}
+                    aria-pressed={ttsRate === rate}
+                    onClick={() => setTtsRate(rate)}
+                  >
+                    {rate}×
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="tts-panel-row">
+              <div className="tts-panel-label">{ttsVoiceLabel}</div>
+              <select className="tts-select" value={ttsVoiceURI} onChange={(e) => setTtsVoiceURI(e.target.value)}>
+                <option value="">{ttsVoiceAutoLabel}</option>
+                {ttsVoiceOptions.map((voice) => (
+                  <option key={voice.voiceURI} value={voice.voiceURI}>
+                    {voice.name} ({voice.lang})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="tts-panel-foot">
+              <button type="button" className="tts-link-btn" onClick={() => setTtsSettingsOpen(false)}>
+                {ttsCloseLabel}
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
       {/* Ambient glow blobs */}
       <div style={{position:"fixed",top:"-10%",insetInlineStart:"-10%",width:"40vw",height:"40vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(201,168,76,0.06) 0%,transparent 70%)",pointerEvents:"none"}}/>
@@ -744,6 +1391,31 @@ export default function MarriageBio() {
         .wrap{animation:fadeUp .9s ease forwards,borderPulse 6s ease infinite;}
         .bism{animation:shimmer 3.5s ease infinite;}
         .card-reveal{animation:fadeUp .7s ease both;}
+        .tts-active{outline:2px solid rgba(240,216,118,0.85);outline-offset:4px;scroll-margin-top:120px;}
+        @keyframes ttsPulse{0%,100%{opacity:.65;transform:translateY(0)}50%{opacity:1;transform:translateY(-1px)}}
+        .tts-wave{animation:ttsPulse 1.2s ease-in-out infinite;}
+        .tts-btn{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:rgba(9,16,24,0.92);color:#e8d5a0;border:1px solid rgba(201,168,76,0.35);cursor:pointer;font-family:Lato,sans-serif;font-size:12px;letter-spacing:0.2px;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background .15s ease;}
+        .tts-btn:hover{transform:translateY(-1px);border-color:rgba(240,216,118,0.55);background:rgba(9,16,24,0.96);}
+        .tts-btn--active{border-color:rgba(240,216,118,0.7);box-shadow:0 0 0 3px rgba(201,168,76,0.12);}
+        .tts-gear{width:36px;justify-content:center;padding:7px 0;}
+        .tts-btn:active{transform:translateY(0);}
+        .tts-panel{width:min(330px,calc(100vw - 28px));padding:12px 12px 10px;border-radius:12px;background:rgba(9,16,24,0.96);border:1px solid rgba(201,168,76,0.35);backdrop-filter:blur(6px);box-shadow:0 25px 80px rgba(0,0,0,0.65);animation:fadeUp .25s ease both;}
+        .tts-panel-row{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+        .tts-panel-label{color:rgba(201,168,76,0.6);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-family:Lato,sans-serif;}
+        .tts-rate{display:flex;gap:6px;flex-wrap:wrap;}
+        .tts-rate-btn{padding:6px 10px;border-radius:999px;border:1px solid rgba(201,168,76,0.22);background:rgba(201,168,76,0.07);color:rgba(253,246,227,0.85);cursor:pointer;font-size:12px;font-family:Lato,sans-serif;transition:border-color .15s ease,background .15s ease;}
+        .tts-rate-btn:hover{border-color:rgba(240,216,118,0.55);background:rgba(201,168,76,0.11);}
+        .tts-rate-btn.is-active{border-color:rgba(240,216,118,0.75);background:rgba(201,168,76,0.15);color:#fdf6e3;}
+        .tts-select{background:rgba(9,16,24,0.92);color:#e8d5a0;border:1px solid rgba(201,168,76,0.35);border-radius:10px;padding:8px 10px;font-size:12px;}
+        .tts-panel-foot{display:flex;justify-content:flex-end;margin-top:4px;}
+        .tts-link-btn{background:transparent;border:1px solid rgba(201,168,76,0.25);color:rgba(253,246,227,0.75);padding:6px 10px;border-radius:999px;cursor:pointer;font-family:Lato,sans-serif;font-size:12px;}
+        .tts-link-btn:hover{border-color:rgba(240,216,118,0.6);color:#fdf6e3;}
+        .tts-toast{max-width:min(330px,calc(100vw - 28px));padding:9px 10px;border-radius:10px;background:rgba(240,216,118,0.08);border:1px solid rgba(240,216,118,0.22);color:rgba(253,246,227,0.8);font-family:Lato,sans-serif;font-size:12px;line-height:1.5;}
+        .tts-now{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);width:min(720px,calc(100vw - 20px));padding:10px 12px;border-radius:14px;background:rgba(9,16,24,0.94);border:1px solid rgba(201,168,76,0.35);backdrop-filter:blur(6px);box-shadow:0 18px 70px rgba(0,0,0,0.7);display:flex;align-items:center;gap:10px;z-index:60;}
+        .tts-now-text{flex:1;color:rgba(253,246,227,0.85);font-family:Lato,sans-serif;font-size:12px;line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .tts-word{background:rgba(240,216,118,0.18);color:#fdf6e3;padding:1px 3px;border-radius:4px;}
+        .tts-now-stop{border:1px solid rgba(201,168,76,0.25);background:rgba(201,168,76,0.08);color:#fdf6e3;padding:6px 10px;border-radius:999px;cursor:pointer;font-size:14px;line-height:1;}
+        .tts-now-stop:hover{border-color:rgba(240,216,118,0.65);background:rgba(201,168,76,0.12);}
         button{outline:none;-webkit-tap-highlight-color:transparent;}
         button:focus-visible,
         select:focus-visible,
@@ -757,7 +1429,7 @@ export default function MarriageBio() {
         @media(max-width:360px){.two-col{grid-template-columns:1fr !important;}}
       `}</style>
 
-      <div className="wrap" style={{
+      <div className="wrap" ref={contentRef} style={{
         maxWidth:"660px",margin:"0 auto",
         background:"linear-gradient(160deg,#0d1520 0%,#091018 50%,#0b1219 100%)",
         border:"1px solid rgba(201,168,76,0.28)",
@@ -780,7 +1452,7 @@ export default function MarriageBio() {
           <div style={{position:"absolute",top:"12px",insetInlineEnd:"12px"}}><Corner flip/></div>
 
           {/* Bismillah */}
-          <div className="bism" style={{
+          <div lang="ar" className="bism" style={{
             fontFamily:"Amiri,serif",
             fontSize:"clamp(18px,4.5vw,28px)",
             color:"#e8c96a",
@@ -816,7 +1488,7 @@ export default function MarriageBio() {
           </div>
 
           {/* Arabic name */}
-          <div style={{
+          <div lang="ar" style={{
             fontFamily:"Amiri,serif",
             fontSize:"clamp(15px,3.5vw,20px)",
             color:"rgba(201,168,76,0.55)",
@@ -916,7 +1588,7 @@ export default function MarriageBio() {
             <div style={{marginTop:"4px",padding:"14px 16px",background:"rgba(201,168,76,0.04)",border:"1px solid rgba(201,168,76,0.12)",borderRadius:"8px"}}>
               <div style={{color:"rgba(201,168,76,0.5)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"12px",fontFamily:"Lato,sans-serif"}}>{t("common.siblings")}</div>
               {siblings.map(s => (
-                <div key={s.label} style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px"}}>
+                <div key={s.label} data-tts-block="true" style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px"}}>
                   <div style={{
                     width:"34px",height:"34px",borderRadius:"8px",flexShrink:0,
                     background:"rgba(201,168,76,0.1)",border:"1px solid rgba(201,168,76,0.2)",
@@ -967,7 +1639,7 @@ export default function MarriageBio() {
           <Card icon={sectionIcons.hobbies} title={t("sections.hobbies")} delay={360}>
             <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
               {hobbiesList.map(h => (
-                <div key={h} style={{
+                <div key={h} data-tts-block="true" style={{
                   padding:"10px 14px",
                   background:"linear-gradient(135deg,rgba(201,168,76,0.07),rgba(201,168,76,0.02))",
                   border:"1px solid rgba(201,168,76,0.15)",
@@ -984,7 +1656,7 @@ export default function MarriageBio() {
             <p style={{color:"rgba(253,246,227,0.3)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"12px",fontFamily:"Lato,sans-serif"}}>{t("common.strictlyAvoids")}</p>
             <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"7px"}}>
               {lifestyleItems.map(({ icon, text }) => (
-                <div key={text} style={{
+                <div key={text} data-tts-block="true" style={{
                   display:"flex",alignItems:"center",gap:"8px",
                   padding:"9px 12px",
                   background:"rgba(201,168,76,0.04)",
@@ -1013,7 +1685,7 @@ export default function MarriageBio() {
             </p>
             <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"8px 6px"}}>
               {foodsList.map(f => (
-                <div key={f.n} style={{
+                <div key={f.n} data-tts-block="true" style={{
                   display:"inline-flex",
                   alignItems:"center",
                   gap:"6px",
@@ -1191,7 +1863,7 @@ export default function MarriageBio() {
               <div style={{padding:"14px 16px",background:"linear-gradient(135deg,rgba(201,168,76,0.09),rgba(201,168,76,0.02))",border:"1px solid rgba(201,168,76,0.2)",borderInlineStart:"3px solid #c9a84c",borderRadius:"8px"}}>
                 <div style={{color:"rgba(201,168,76,0.55)",fontSize:"10px",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"10px",fontFamily:"Lato,sans-serif"}}>{t("common.preferredQualities")}</div>
                 {preferredQualities.map(({ icon, text }) => (
-                  <div key={text} style={{display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"9px"}}>
+                  <div key={text} data-tts-block="true" style={{display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"9px"}}>
                     <span style={{fontSize:"14px",marginTop:"1px"}}>{icon}</span>
                     <span style={{color:"rgba(253,246,227,0.75)",fontSize:"clamp(12px,2.8vw,13px)",fontFamily:"Lato,sans-serif",fontWeight:"300",lineHeight:"1.7"}}>{text}</span>
                   </div>
@@ -1206,7 +1878,7 @@ export default function MarriageBio() {
                 </p>
                 <div style={{display:"flex",flexWrap:"wrap",gap:"7px"}}>
                   {partnerLanguages.map(l => (
-                    <span key={l} style={{padding:"5px 14px",background:"linear-gradient(135deg,rgba(201,168,76,0.12),rgba(201,168,76,0.04))",border:"1px solid rgba(201,168,76,0.25)",borderRadius:"20px",color:"#e8d090",fontSize:"clamp(11px,2.4vw,12px)",fontFamily:"Lato,sans-serif"}}>{l}</span>
+                    <span key={l} data-tts-block="true" style={{padding:"5px 14px",background:"linear-gradient(135deg,rgba(201,168,76,0.12),rgba(201,168,76,0.04))",border:"1px solid rgba(201,168,76,0.25)",borderRadius:"20px",color:"#e8d090",fontSize:"clamp(11px,2.4vw,12px)",fontFamily:"Lato,sans-serif"}}>{l}</span>
                   ))}
                 </div>
               </div>
@@ -1248,6 +1920,7 @@ export default function MarriageBio() {
                 return (
                   <div
                     key={text}
+                    data-tts-block="true"
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -1331,6 +2004,26 @@ export default function MarriageBio() {
 
         <div style={{height:"3px",background:"linear-gradient(90deg,transparent 0%,#8b6914 15%,#c9a84c 40%,#f0d876 60%,#c9a84c 80%,#8b6914 90%,transparent 100%)"}}/>
       </div>
+
+      {ttsIsReading && ttsNowReadingNode ? (
+        <div data-tts-ignore="true" className="tts-now" role="status" aria-live="polite">
+          <span aria-hidden="true" className="tts-wave" style={{ fontSize: "16px", lineHeight: 1 }}>
+            🔊
+          </span>
+          <div className="tts-now-text" lang={ttsNowReading?.lang || i18n.language}>
+            {ttsNowReadingNode}
+          </div>
+          <button
+            type="button"
+            className="tts-now-stop"
+            onClick={stopReadAloud}
+            title={t("tts.pauseTooltip")}
+            aria-label={t("tts.pause")}
+          >
+            ⏸
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

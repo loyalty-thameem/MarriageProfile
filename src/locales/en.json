@@ -52,6 +52,20 @@
     "whatsapp": "WhatsApp",
     "whatsappHint": "Send a WhatsApp message"
   },
+  "tts": {
+    "start": "Read Aloud",
+    "pause": "Stop",
+    "readAloudTooltip": "Read aloud",
+    "pauseTooltip": "Stop reading",
+    "settings": "Read Aloud Settings",
+    "speed": "Speed",
+    "voice": "Voice",
+    "voiceAuto": "Auto",
+    "close": "Close",
+    "noText": "No readable text found.",
+    "notSupported": "Read aloud isn't supported in this browser.",
+    "done": "Finished reading."
+  },
   "rows": {
     "fullName": "Full Name",
     "dateOfBirth": "Date of Birth",
