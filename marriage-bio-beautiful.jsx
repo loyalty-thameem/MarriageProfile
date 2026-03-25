@@ -1000,16 +1000,35 @@ export default function MarriageBio() {
 
           {/* Food */}
           <Card icon={sectionIcons.food} title={t("sections.food")} delay={480}>
-            <div style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
+            <p style={{
+              margin:"0 0 12px",
+              fontFamily:"Lato,sans-serif",
+              fontWeight:"300",
+              fontStyle:"italic",
+              color:"rgba(253,246,227,0.55)",
+              fontSize:"clamp(11px,2.5vw,13px)",
+              lineHeight:"1.8"
+            }}>
+              <InlineIconText icon="ℹ️">{t("text.foodNote")}</InlineIconText>
+            </p>
+            <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"8px 6px"}}>
               {foodsList.map(f => (
                 <div key={f.n} style={{
-                  padding:"9px 16px",
+                  display:"inline-flex",
+                  alignItems:"center",
+                  gap:"6px",
+                  padding:"8px 12px",
                   background:"linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.03))",
                   border:"1px solid rgba(201,168,76,0.2)",
                   borderRadius:"20px",
-                  color:"#e8d090",fontSize:"clamp(11px,2.4vw,12px)",
-                  fontFamily:"Lato,sans-serif",fontWeight:"300"
-                }}>{f.e} {f.n}</div>
+                  color:"#e8d090",fontSize:"clamp(10px,2.2vw,11px)",
+                  fontFamily:"Lato,sans-serif",fontWeight:"300",
+                  lineHeight:"1.6",
+                  whiteSpace:"nowrap"
+                }}>
+                  <span aria-hidden="true">{f.e}</span>
+                  <span>{f.n}</span>
+                </div>
               ))}
             </div>
           </Card>

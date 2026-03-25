@@ -86,6 +86,7 @@
   },
   "text": {
     "housingNote": "Our old house has been demolished and the land is kept. Inshallah, a new house will be built very soon.",
+    "foodNote": "Just a note: I'm not a foodie, I enjoy simple and regular meals.",
     "about1": "Alhamdulillah, I lead a disciplined, value-driven life rooted in Islamic principles and traditional South Indian Muslim culture. My daily routines prioritize health, consistency, and long-term growth - both worldly and spiritual.",
     "about2": "I believe in simple living, strong family bonds, and fulfilling responsibilities with sincerity. Committed to building a home grounded in taqwa, mutual respect, and purposeful living.",
     "about3": "Alhamdulillah, we follow the Qur'an and Sunnah, and strictly avoid bid'ah, shirk, and dargah-related practices.",
@@ -147,7 +148,11 @@
     ],
     "foods": [
       { "e": "🍛", "n": "White Rice with Rasam & Egg" },
+      { "e": "🫓", "n": "Chapati & Paneer Curry" },
+      { "e": "🥞", "n": "Dosa" },
       { "e": "🍚", "n": "Egg Biryani" },
+      { "e": "🍲", "n": "White Rice with Sambar" },
+      { "e": "🧈", "n": "Paneer Butter Masala" },
       { "e": "🥥", "n": "Coconut Rice" },
       { "e": "✨", "n": "Ghee Rice" }
     ],
