@@ -6,6 +6,39 @@ const BISMILLAH = "\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u064e
 const ARABIC_NAME = "تميم أنصاري";
 
 const getNestedValue = (obj, path) => path.split(".").reduce((acc, key) => acc?.[key], obj);
+
+const buildWhatsAppHref = (telHref, message) => {
+  if (!telHref || !message) return null;
+  const rawPhone = String(telHref).replace(/^tel:/i, "");
+  const digits = rawPhone.replace(/\D/g, "");
+  if (!digits) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(String(message).trim())}`;
+};
+
+const WhatsAppMark = ({ size = 18 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    focusable="false"
+    style={{ display: "block" }}
+  >
+    <circle cx="12" cy="12" r="12" fill="#25D366" />
+    <text
+      x="12"
+      y="15"
+      textAnchor="middle"
+      fontFamily="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif"
+      fontSize="9"
+      fontWeight="800"
+      fill="#ffffff"
+      letterSpacing="0.5"
+    >
+      WA
+    </text>
+  </svg>
+);
 /* -- Islamic geometric corner SVG -- */
 const Corner = ({ flip }) => (
   <svg width="60" height="60" viewBox="0 0 60 60" fill="none"
@@ -147,28 +180,28 @@ const HIGHLIGHT_PHRASES = {
     future3: ["InshaAllah,", "buy land, build our own home, and start a business"]
   },
   ta: {
-    mahr1: ["இன்ஷா அல்லாஹ்,", "80 sovereigns தங்கம்"],
+    mahr1: ["இன்ஷா அல்லாஹ்,", "80 கிராம் தங்கம்"],
     mahr2: ["அல்ஹம்துலில்லாஹ்,", "86 கிராம் தங்கம்"],
     future1: ["அல்ஹம்துலில்லாஹ்,"],
     future2: ["ரிஸ்க் அல்லாஹ்விடமிருந்து வருகிறது"],
     future3: ["இன்ஷா அல்லாஹ்,", "நிலம் வாங்கி, எங்கள் சொந்த வீட்டை கட்டி, ஒரு தொழிலை தொடங்கி"]
   },
   ur: {
-    mahr1: ["ان شاء اللہ،", "80 sovereigns سونا"],
+    mahr1: ["ان شاء اللہ،", "80 گرام سونا"],
     mahr2: ["الحمدللہ،", "86 گرام سونا"],
     future1: ["الحمدللہ"],
     future2: ["رزق اللہ کی طرف سے ہے"],
     future3: ["ان شاء اللہ", "زمین خریدنا، اپنا گھر بنانا اور کاروبار شروع کرنا"]
   },
   ar: {
-    mahr1: ["إن شاء الله،", "80 sovereigns من الذهب"],
+    mahr1: ["إن شاء الله،", "80 غرامًا من الذهب"],
     mahr2: ["الحمد لله،", "86 غراماً من الذهب"],
     future1: ["الحمد لله،"],
     future2: ["الرزق من عند الله"],
     future3: ["إن شاء الله،", "شراء أرض وبناء منزلنا الخاص وبدء مشروع"]
   },
   ml: {
-    mahr1: ["ഇൻഷാ അല്ലാഹ്,", "80 sovereigns സ്വർണം"],
+    mahr1: ["ഇൻഷാ അല്ലാഹ്,", "80 ഗ്രാം സ്വർണം"],
     mahr2: ["അൽഹംദുലില്ലാഹ്,", "86 ഗ്രാം സ്വർണം"],
     future1: ["അൽഹംദുലില്ലാഹ്,"],
     future2: ["റിസ്ഖ് അല്ലാഹുവിൽ നിന്നാണ് വരുന്നതെന്ന്"],
@@ -478,6 +511,20 @@ function Gallery({ rtl }) {
           }}
           onClick={() => openLightbox(cur)}
         >
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `url(${photos[cur]})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              filter: "blur(18px)",
+              transform: "scale(1.08)",
+              opacity: 0.35,
+              zIndex: 0
+            }}
+          />
           <img
             src={photos[cur]}
             alt={t("gallery.photoAlt", { index: cur + 1 })}
@@ -489,10 +536,12 @@ function Gallery({ rtl }) {
               height: "clamp(260px,55vw,380px)",
               objectFit: "contain",
               objectPosition: "center",
-              display: "block"
+              display: "block",
+              position: "relative",
+              zIndex: 1
             }}
           />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,transparent 55%,rgba(8,10,16,0.75))" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,transparent 55%,rgba(8,10,16,0.75))", pointerEvents: "none", zIndex: 2 }} />
           <div
             style={{
                 position: "absolute",
@@ -505,7 +554,8 @@ function Gallery({ rtl }) {
               color: "#c9a84c",
               fontSize: "11px",
               fontFamily: "Lato,sans-serif",
-              letterSpacing: "1px"
+              letterSpacing: "1px",
+              zIndex: 2
             }}
           >
             {cur + 1} / {photos.length}
@@ -1034,7 +1084,17 @@ export default function MarriageBio() {
                       {t("text.groomSide1")}
                     </InlineIconText>
                   </p>
+                  <p style={{margin:0}}>
+                    <InlineIconText icon="🍽️">
+                      {t("text.groomSide5")}
+                    </InlineIconText>
+                  </p>
                   <p style={{margin:0}}>{t("text.groomSide2")}</p>
+                  <p style={{margin:0}}>
+                    <InlineIconText icon="🕊️">
+                      {t("text.groomSide6")}
+                    </InlineIconText>
+                  </p>
                   <p style={{margin:0}}>
                     <InlineIconText icon="✨">
                       {t("text.groomSide3")}
@@ -1161,16 +1221,75 @@ export default function MarriageBio() {
               marginBottom:"20px"
             }}>{t("sections.contact")}</div>
             <div style={{display:"flex",flexDirection:"column",gap:"12px",alignItems:"center"}}>
-              {contactItems.map(({ href, icon, text }) => href ? (
-                <a key={text} href={href} style={{
-                  color:"#c9a84c",textDecoration:"none",
-                  fontSize:"clamp(12px,3vw,15px)",
-                  fontFamily:"Lato,sans-serif",fontWeight:"400",
-                  letterSpacing:"0.3px"
-                }}>{icon} {text}</a>
-              ) : (
-                <span key={text} style={{color:"#c9a84c",fontSize:"clamp(12px,3vw,14px)",fontFamily:"Lato,sans-serif"}}>{icon} {text}</span>
-              ))}
+              {contactItems.map(({ href, icon, text, whatsappMessage }) => {
+                const whatsappHref = buildWhatsAppHref(href, whatsappMessage);
+                return (
+                  <div
+                    key={text}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      flexDirection: rtl ? "row-reverse" : "row"
+                    }}
+                  >
+                    {href ? (
+                      <a
+                        href={href}
+                        style={{
+                          color: "#c9a84c",
+                          textDecoration: "none",
+                          fontSize: "clamp(12px,3vw,15px)",
+                          fontFamily: "Lato,sans-serif",
+                          fontWeight: "400",
+                          letterSpacing: "0.3px"
+                        }}
+                      >
+                        {icon} {text}
+                      </a>
+                    ) : (
+                      <span
+                        style={{
+                          color: "#c9a84c",
+                          fontSize: "clamp(12px,3vw,14px)",
+                          fontFamily: "Lato,sans-serif"
+                        }}
+                      >
+                        {icon} {text}
+                      </span>
+                    )}
+
+                    {whatsappHref ? (
+                      <a
+                        href={whatsappHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={t("common.whatsappHint")}
+                        aria-label={t("common.whatsappHint")}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          padding: "6px 10px",
+                          borderRadius: "999px",
+                          border: "1px solid rgba(37,211,102,0.45)",
+                          background: "rgba(37,211,102,0.12)",
+                          color: "#d9ffe8",
+                          textDecoration: "none",
+                          fontFamily: "Lato,sans-serif",
+                          fontSize: "clamp(11px,2.6vw,13px)",
+                          letterSpacing: "0.3px"
+                        }}
+                      >
+                        <WhatsAppMark size={18} />
+                        <span style={{ opacity: 0.9 }}>{t("common.whatsapp")}</span>
+                      </a>
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
             <div style={{marginTop:"22px"}}>
               <StarDivider/>

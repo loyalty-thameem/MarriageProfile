@@ -48,7 +48,9 @@
     "strictlyAvoids": "Strictly Avoids",
     "preferredQualities": "Preferred Qualities",
     "languageBackground": "Language & Background",
-    "preferredAgeRange": "Preferred Age Range"
+    "preferredAgeRange": "Preferred Age Range",
+    "whatsapp": "WhatsApp",
+    "whatsappHint": "Send a WhatsApp message"
   },
   "rows": {
     "fullName": "Full Name",
@@ -95,6 +97,8 @@
     "groomSide2": "Our intention for this marriage is based on faith, good character, and mutual understanding, not material things.",
     "groomSide3": "We sincerely pray to Allah (SWT) to bless this marriage with barakah, peace, and happiness, and our main desire is to build a life based on Islamic values, respect, and kindness.",
     "groomSide4": "We only seek the sincere duas and blessings from the bride and her parents, especially from her mother and father.",
+    "groomSide5": "Inshallah, we intend to conduct the Walima in a simple manner according to the Sunnah, and we do not expect or request a Walima from your side.",
+    "groomSide6": "Inshallah, we wish to keep the marriage simple and blessed, following the way of Prophet Muhammad (ﷺ).",
     "future1": "I come from a simple background and currently do not own land or large wealth. However, Alhamdulillah, Allah has blessed me with a good career and the opportunity to grow while striving to practice Islam sincerely.",
     "future2": "I believe that rizq comes from Allah, and with His blessings and consistent effort, I hope to continue improving in both Deen and Dunya.",
     "future3": "InshaAllah, in the future I aim to buy land, build our own home, and start a business to provide a stable and comfortable life for my family.",
@@ -222,9 +226,8 @@
       { "icon": "👦", "label": "Younger Brother", "value": "Unmarried" }
     ],
     "contactItems": [
-      { "href": "tel:+919884345998", "icon": "👨", "text": "Male Family Contact: Raffic Ansari – +91 9884345998" },
-      { "href": "tel:+918608795998", "icon": "👩", "text": "Female Family Contact: Safrin – +91 8608795998" },
-      { "href": "tel:+917695974797", "icon": "📱", "text": "WhatsApp: +91 7695974797" }
+      { "href": "tel:+919884345998", "icon": "👨", "text": "Male Family Contact: Raffic Ansari – +91 9884345998", "whatsappMessage": "Assalamu alaikkum, Raffic Ansari. We are interested in your brother-in-law as a groom." },
+      { "href": "tel:+918608795998", "icon": "👩", "text": "Female Family Contact: Safrin – +91 8608795998", "whatsappMessage": "Assalamu alaikkum, Safrin. We are interested in your brother as a groom." }
     ],
     "preferredAgeRangeValue": "18 - 20 Years"
   }
