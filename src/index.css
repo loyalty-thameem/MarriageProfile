@@ -13,3 +13,7 @@ body {
   font-family: "Lato", sans-serif;
   background: #0b0a08;
 }
+
+.closing-overlay-open .app-content {
+  filter: blur(10px);
+}
