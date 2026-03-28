@@ -1682,6 +1682,38 @@ export default function MarriageBio() {
                 }}>{h}</div>
               ))}
             </div>
+
+            <div
+              aria-hidden="true"
+              style={{
+                height: 1,
+                margin: "18px 0 14px",
+                background:
+                  "linear-gradient(90deg, rgba(201,168,76,0), rgba(201,168,76,0.35), rgba(201,168,76,0))"
+              }}
+            />
+
+            <h4
+              style={{
+                margin: "0 0 10px",
+                fontFamily: "Playfair Display,serif",
+                color: "#e8d5a0",
+                fontSize: "clamp(13px,3vw,16px)",
+                fontWeight: "700",
+                letterSpacing: "0.8px"
+              }}
+            >
+              <InlineIconText icon="🕒">{t("text.freeTimeTitle")}</InlineIconText>
+            </h4>
+            <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+              {t("text.freeTime1")}
+            </p>
+            <p style={{color:"rgba(253,246,227,0.6)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+              {t("text.freeTime2")}
+            </p>
+            <p style={{color:"rgba(253,246,227,0.68)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:0,fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+              {t("text.freeTime3")}
+            </p>
           </Card>
 
           {/* Lifestyle */}
