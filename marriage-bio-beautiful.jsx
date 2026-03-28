@@ -1957,6 +1957,16 @@ export default function MarriageBio() {
                 <div style={{fontSize:"28px"}}>{sectionIcons.age}</div>
               </div>
 
+              {/* Gentle reassurance */}
+              <div style={{padding:"14px 16px",background:"linear-gradient(135deg,rgba(201,168,76,0.09),rgba(201,168,76,0.02))",border:"1px solid rgba(201,168,76,0.2)",borderInlineStart:"3px solid #c9a84c",borderRadius:"8px"}}>
+                <p style={{margin:0,color:"rgba(253,246,227,0.75)",fontSize:"clamp(12px,2.8vw,13px)",fontFamily:"Lato,sans-serif",fontWeight:"300",lineHeight:"1.85"}}>
+                  {t("text.partnerReassure1")}
+                </p>
+                <p style={{margin:"10px 0 0",color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,13px)",fontFamily:"Lato,sans-serif",fontWeight:"300",lineHeight:"1.85"}}>
+                  {t("text.partnerReassure2")}
+                </p>
+              </div>
+
               {/* Personal wish quote */}
               <div style={{padding:"14px 16px",background:"linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.03))",border:"1px solid rgba(201,168,76,0.25)",borderRadius:"8px",fontFamily:"Playfair Display,serif",fontStyle:"italic",color:"#e8d5a0",fontSize:"clamp(12px,2.8vw,15px)",lineHeight:"1.9"}}>
                 {t("text.partnerQuote")}
