@@ -1615,6 +1615,19 @@ export default function MarriageBio() {
               {t("text.about3")}
             </p>
 
+            <div style={{
+              marginTop:"16px",
+              padding:"14px 18px",
+              background:"linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.04))",
+              border:"1px solid rgba(201,168,76,0.25)",
+              borderInlineStart:"3px solid #c9a84c",
+              borderRadius:"8px"
+            }}>
+              <p style={{color:"#e8d5a0",fontSize:"clamp(11px,2.6vw,13px)",lineHeight:"2",fontFamily:"Lato,sans-serif",fontWeight:"300",fontStyle:"italic",margin:0}}>
+                {t("text.aboutSupport")}
+              </p>
+            </div>
+
             <div
               aria-hidden="true"
               style={{
@@ -1646,19 +1659,6 @@ export default function MarriageBio() {
             <p style={{color:"rgba(253,246,227,0.68)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:0,fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
               {t("text.athletics3")}
             </p>
-
-            <div style={{
-              marginTop:"16px",
-              padding:"14px 18px",
-              background:"linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.04))",
-              border:"1px solid rgba(201,168,76,0.25)",
-              borderInlineStart:"3px solid #c9a84c",
-              borderRadius:"8px"
-            }}>
-              <p style={{color:"#e8d5a0",fontSize:"clamp(11px,2.6vw,13px)",lineHeight:"2",fontFamily:"Lato,sans-serif",fontWeight:"300",fontStyle:"italic",margin:0}}>
-                {t("text.aboutSupport")}
-              </p>
-            </div>
           </Card>
 
           {/* Core Values */}
