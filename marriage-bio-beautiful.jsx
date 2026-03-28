@@ -1628,6 +1628,15 @@ export default function MarriageBio() {
               </p>
             </div>
 
+            <div style={{marginTop:"14px",padding:"14px 16px",background:"linear-gradient(135deg,rgba(201,168,76,0.09),rgba(201,168,76,0.02))",border:"1px solid rgba(201,168,76,0.2)",borderInlineStart:"3px solid #c9a84c",borderRadius:"8px"}}>
+              <p style={{margin:0,color:"rgba(253,246,227,0.75)",fontSize:"clamp(12px,2.8vw,13px)",fontFamily:"Lato,sans-serif",fontWeight:"300",lineHeight:"1.85"}}>
+                {t("text.partnerReassure1")}
+              </p>
+              <p style={{margin:"10px 0 0",color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,13px)",fontFamily:"Lato,sans-serif",fontWeight:"300",lineHeight:"1.85"}}>
+                {t("text.partnerReassure2")}
+              </p>
+            </div>
+
             <div
               aria-hidden="true"
               style={{
