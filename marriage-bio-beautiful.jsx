@@ -1614,6 +1614,39 @@ export default function MarriageBio() {
             <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",marginTop:"12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
               {t("text.about3")}
             </p>
+
+            <div
+              aria-hidden="true"
+              style={{
+                height: 1,
+                margin: "18px 0 14px",
+                background:
+                  "linear-gradient(90deg, rgba(201,168,76,0), rgba(201,168,76,0.35), rgba(201,168,76,0))"
+              }}
+            />
+
+            <h4
+              style={{
+                margin: "0 0 10px",
+                fontFamily: "Playfair Display,serif",
+                color: "#e8d5a0",
+                fontSize: "clamp(13px,3vw,16px)",
+                fontWeight: "700",
+                letterSpacing: "0.8px"
+              }}
+            >
+              <InlineIconText icon="🏃">{t("text.athleticsTitle")}</InlineIconText>
+            </h4>
+            <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+              {t("text.athletics1")}
+            </p>
+            <p style={{color:"rgba(253,246,227,0.6)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+              {t("text.athletics2")}
+            </p>
+            <p style={{color:"rgba(253,246,227,0.68)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:0,fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+              {t("text.athletics3")}
+            </p>
+
             <div style={{
               marginTop:"16px",
               padding:"14px 18px",
