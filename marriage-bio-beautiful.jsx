@@ -890,6 +890,12 @@ function Gallery({ rtl }) {
 export default function MarriageBio() {
   const { t, i18n } = useTranslation();
   const rtl = i18n.language === "ar" || i18n.language === "ur";
+
+  // Content toggles (hidden by default).
+  const showAthleticsSection =
+    import.meta.env.VITE_SHOW_ATHLETICS_SECTION === "true";
+  const showFreeTimeSection =
+    import.meta.env.VITE_SHOW_FREE_TIME_SECTION === "true";
   const tText = React.useCallback(
     (key, hardFallback = "") => {
       const fallback = getNestedValue(enLocale, key);
@@ -1637,37 +1643,41 @@ export default function MarriageBio() {
               </p>
             </div>
 
-            <div
-              aria-hidden="true"
-              style={{
-                height: 1,
-                margin: "18px 0 14px",
-                background:
-                  "linear-gradient(90deg, rgba(201,168,76,0), rgba(201,168,76,0.35), rgba(201,168,76,0))"
-              }}
-            />
+            {showAthleticsSection ? (
+              <>
+                <div
+                  aria-hidden="true"
+                  style={{
+                    height: 1,
+                    margin: "18px 0 14px",
+                    background:
+                      "linear-gradient(90deg, rgba(201,168,76,0), rgba(201,168,76,0.35), rgba(201,168,76,0))"
+                  }}
+                />
 
-            <h4
-              style={{
-                margin: "0 0 10px",
-                fontFamily: "Playfair Display,serif",
-                color: "#e8d5a0",
-                fontSize: "clamp(13px,3vw,16px)",
-                fontWeight: "700",
-                letterSpacing: "0.8px"
-              }}
-            >
-              <InlineIconText icon="🏃">{t("text.athleticsTitle")}</InlineIconText>
-            </h4>
-            <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-              {t("text.athletics1")}
-            </p>
-            <p style={{color:"rgba(253,246,227,0.6)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-              {t("text.athletics2")}
-            </p>
-            <p style={{color:"rgba(253,246,227,0.68)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:0,fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-              {t("text.athletics3")}
-            </p>
+                <h4
+                  style={{
+                    margin: "0 0 10px",
+                    fontFamily: "Playfair Display,serif",
+                    color: "#e8d5a0",
+                    fontSize: "clamp(13px,3vw,16px)",
+                    fontWeight: "700",
+                    letterSpacing: "0.8px"
+                  }}
+                >
+                  <InlineIconText icon="🏃">{t("text.athleticsTitle")}</InlineIconText>
+                </h4>
+                <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+                  {t("text.athletics1")}
+                </p>
+                <p style={{color:"rgba(253,246,227,0.6)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+                  {t("text.athletics2")}
+                </p>
+                <p style={{color:"rgba(253,246,227,0.68)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:0,fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+                  {t("text.athletics3")}
+                </p>
+              </>
+            ) : null}
           </Card>
 
           {/* Core Values */}
@@ -1692,37 +1702,41 @@ export default function MarriageBio() {
               ))}
             </div>
 
-            <div
-              aria-hidden="true"
-              style={{
-                height: 1,
-                margin: "18px 0 14px",
-                background:
-                  "linear-gradient(90deg, rgba(201,168,76,0), rgba(201,168,76,0.35), rgba(201,168,76,0))"
-              }}
-            />
+            {showFreeTimeSection ? (
+              <>
+                <div
+                  aria-hidden="true"
+                  style={{
+                    height: 1,
+                    margin: "18px 0 14px",
+                    background:
+                      "linear-gradient(90deg, rgba(201,168,76,0), rgba(201,168,76,0.35), rgba(201,168,76,0))"
+                  }}
+                />
 
-            <h4
-              style={{
-                margin: "0 0 10px",
-                fontFamily: "Playfair Display,serif",
-                color: "#e8d5a0",
-                fontSize: "clamp(13px,3vw,16px)",
-                fontWeight: "700",
-                letterSpacing: "0.8px"
-              }}
-            >
-              <InlineIconText icon="🕒">{t("text.freeTimeTitle")}</InlineIconText>
-            </h4>
-            <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-              {t("text.freeTime1")}
-            </p>
-            <p style={{color:"rgba(253,246,227,0.6)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-              {t("text.freeTime2")}
-            </p>
-            <p style={{color:"rgba(253,246,227,0.68)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:0,fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
-              {t("text.freeTime3")}
-            </p>
+                <h4
+                  style={{
+                    margin: "0 0 10px",
+                    fontFamily: "Playfair Display,serif",
+                    color: "#e8d5a0",
+                    fontSize: "clamp(13px,3vw,16px)",
+                    fontWeight: "700",
+                    letterSpacing: "0.8px"
+                  }}
+                >
+                  <InlineIconText icon="🕒">{t("text.freeTimeTitle")}</InlineIconText>
+                </h4>
+                <p style={{color:"rgba(253,246,227,0.7)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+                  {t("text.freeTime1")}
+                </p>
+                <p style={{color:"rgba(253,246,227,0.6)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:"0 0 12px",fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+                  {t("text.freeTime2")}
+                </p>
+                <p style={{color:"rgba(253,246,227,0.68)",fontSize:"clamp(12px,2.8vw,14px)",lineHeight:"1.95",margin:0,fontFamily:"Lato,sans-serif",fontWeight:"300"}}>
+                  {t("text.freeTime3")}
+                </p>
+              </>
+            ) : null}
           </Card>
 
           {/* Lifestyle */}
