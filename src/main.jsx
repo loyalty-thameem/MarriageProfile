@@ -13,7 +13,7 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <>
       <div className="app-content">
-        //<MarriageBio />//
+        //<>//
       </div>
       {SHOW_CLOSING_OVERLAY ? <ClosingOverlay /> : null}
     </>
